@@ -29,7 +29,7 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function gym() {
+    public function memberGymLocation() {
         return $this->belongsTo('App\GymLocation');
     }
 

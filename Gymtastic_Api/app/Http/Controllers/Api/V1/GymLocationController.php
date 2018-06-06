@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
 use App\GymLocation;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,8 @@ class GymLocationController extends Controller
     public function index()
     {
         //
+        $gyms = GymLocation::all();
+        return $gyms;
     }
 
     /**
@@ -41,12 +44,14 @@ class GymLocationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\GymLocation  $gymLocation
      * @return \Illuminate\Http\Response
      */
-    public function show(GymLocation $gymLocation)
+    public function show($gymLocation)
     {
         //
+        $gym = GymLocation::find($gymLocation);
+        // $gyms = $gymLocation;
+        return $gym;
     }
 
     /**
@@ -81,5 +86,21 @@ class GymLocationController extends Controller
     public function destroy(GymLocation $gymLocation)
     {
         //
+    }
+
+    public function gymInstructors($gymLocation) {
+        $gym = GymLocation::find($gymLocation);
+
+        $instructors = $gym->instructors;
+
+        return $instructors;
+    }
+
+    public function gymMembers($gymLocation) {
+        $gym = GymLocation::find($gymLocation);
+
+        $members = $gym->members;
+
+        return $members;
     }
 }

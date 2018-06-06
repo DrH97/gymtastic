@@ -16,3 +16,29 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::namespace('Api\V1')->prefix('v1')->group(function() {
+    Route::get('/', function() {
+        return view('welcome');
+    });
+
+    Route::apiResource('gyms', 'GymLocationController')->except(['store', 'destroy']);
+    Route::prefix('gyms')->group(function() {
+        Route::get('/{gym}/instructors', 'GymLocationController@gymInstructors');
+        Route::get('/{gym}/members', 'GymLocationController@gymMembers');
+    });
+
+    Route::apiResource('instructors', 'InstructorController')->except(['store', 'destroy']);
+    Route::prefix('instructors')->group(function() {
+        Route::get('/{instructor}/gym', 'InstructorController@instructorGymLocation');
+    });
+
+    Route::get('users', function() {
+        return 'Unauthorized';
+    });
+    Route::prefix('users')->group(function() {
+        Route::get('/{user}/gyms', 'UserController@memberGymLocation');
+        Route::get('/{user}/workouts', 'UserController@memberWorkouts');
+    });
+    Route::resource('users', 'UserController')->except(['index', 'store', 'destroy']);
+});

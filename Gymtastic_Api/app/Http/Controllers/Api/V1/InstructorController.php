@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Instructor;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class InstructorController extends Controller
 {
@@ -15,6 +16,7 @@ class InstructorController extends Controller
     public function index()
     {
         //
+        return Instructor::all();
     }
 
     /**
@@ -41,12 +43,12 @@ class InstructorController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Instructor  $instructor
      * @return \Illuminate\Http\Response
      */
-    public function show(Instructor $instructor)
+    public function show($instructor)
     {
         //
+        return Instructor::find($instructor);
     }
 
     /**
@@ -81,5 +83,13 @@ class InstructorController extends Controller
     public function destroy(Instructor $instructor)
     {
         //
+    }
+
+    public function instructorGymLocation($instructor) {
+        $instructor = Instructor::find($instructor);
+        
+        $gym = $instructor->gymLocation;
+
+        return $gym;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
@@ -31,12 +32,12 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($user)
     {
         //
+        return User::find($user);
     }
 
     /**
@@ -60,5 +61,17 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function memberGymLocation($member) {
+        $member =  User::find($member);
+        // return $member;
+        return $member->memberGymLocation;
+    }
+
+    public function memberWorkouts($member) {
+        $member =  User::find($member);
+        // return $member;
+        return $member->workouts;
     }
 }
