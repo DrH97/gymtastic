@@ -20,10 +20,10 @@ class CreateInstructorsTable extends Migration
             $table->string('email')->unique();
             $table->string('photo');
             $table->string('gender');
-            $table->unsignedInteger('location_id')->nullable();
+            $table->unsignedInteger('gym_location_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('location_id')
+            $table->foreign('gym_location_id')
             ->references('id')->on('gym_locations_92879')
             ->onDelete('set null')->onUpdate('cascade');
         });

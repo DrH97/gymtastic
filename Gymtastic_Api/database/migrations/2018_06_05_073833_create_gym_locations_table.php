@@ -19,7 +19,7 @@ class CreateGymLocationsTable extends Migration
             $table->time('opening_time');
             $table->time('closing_time');
             $table->decimal('lat', 10, 8);
-            $table->decimal('long', 10, 8);
+            $table->decimal('long', 11, 8);
             $table->string('days')->nullable();
             // $table->json('days');
             $table->timestamps();
