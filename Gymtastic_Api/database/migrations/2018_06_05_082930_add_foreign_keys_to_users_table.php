@@ -15,7 +15,7 @@ class AddForeignKeysToUsersTable extends Migration
     {
         //
         Schema::table('users_92879', function(Blueprint $table) {
-            $table->foreign('workout_loc_id')
+            $table->foreign('gym_location_id')
             ->references('id')->on('gym_locations_92879')
             ->onDelete('set null')->onUpdate('cascade');
         });

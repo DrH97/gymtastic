@@ -30,7 +30,7 @@ class User extends Authenticatable
     ];
 
     public function memberGymLocation() {
-        return $this->belongsTo('App\GymLocation');
+        return $this->belongsTo('App\GymLocation', 'gym_location_id');
     }
 
     public function workouts() {

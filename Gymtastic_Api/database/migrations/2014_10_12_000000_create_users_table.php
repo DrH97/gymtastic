@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password');
         // nullables/defaults
-            $table->unsignedInteger('workout_loc_id')->nullable();
+            $table->unsignedInteger('gym_location_id')->nullable();
             $table->integer('pin')->nullable();
             $table->string('photo')->nullable();
             $table->integer('age')->nullable();

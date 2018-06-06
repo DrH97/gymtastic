@@ -11,10 +11,26 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/', 'HomeController@index')->name('home');
+
+Route::middleware('auth')->group(function() {
+
+    Route::resource('gyms', 'GymLocationController');
+    Route::prefix('gyms')->group(function() {
+        Route::get('/{gym}/instructors', 'GymLocationController@gymInstructors');
+        Route::get('/{gym}/members', 'GymLocationController@gymMembers');
+    });
+
+    Route::resource('instructors', 'InstructorController');
+    Route::prefix('instructors')->group(function() {
+        Route::get('/{instructor}/gyms', 'InstructorController@instructorGymLocation');
+    });
+
+    Route::resource('users', 'UserController');
+    Route::prefix('users')->group(function() {
+        Route::get('/{user}/gyms', 'UserController@memberGymLocation');
+        Route::get('/{user}/workouts', 'UserController@memberWorkouts');
+    });
+});
