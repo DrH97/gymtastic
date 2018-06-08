@@ -23,6 +23,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $workouts = \App\Workout::count();
+        $gymlocations = \App\GymLocation::count();
+        $members = \App\User::count();
+        $instructors = \App\Instructor::count();
+
+        return view('home', compact('workouts', 'gymlocations', 'members', 'instructors'));
     }
 }

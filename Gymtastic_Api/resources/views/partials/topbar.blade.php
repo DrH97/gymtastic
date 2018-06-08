@@ -1,3 +1,47 @@
+<style>
+    .dropdown-menu {
+        width: 100px;
+        text-align: center;
+    }
+.dropdown-menu > li > form > button:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+.dropdown-menu > li > form > button:focus, .dropdown-menu > li > form > button:hover {
+    color: #262626;
+    text-decoration: none;
+    background-color: #f5f5f5;
+}
+.dropdown-menu > li > form > button {
+    padding: 7px 18px;
+    color: #666;
+    -moz-transition: all 0.5s;
+    -o-transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+    font-size: 14px;
+    line-height: 25px;
+    width: 100%;
+}
+.dropdown-menu > li > form > button {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+button:focus, button:hover {
+    color: #23527c;
+    text-decoration: underline;
+}
+button:active, button:hover {
+    outline: 0;
+}
+
+</style>
+
+
 <!-- Top Bar -->
 <nav class="navbar">
     <div class="container-fluid">
@@ -12,7 +56,7 @@
                 <li><a href="javascript:void(0);" class="js-search" data-close="true"><i class="material-icons">search</i></a></li>
                 <!-- #END# Call Search -->
                 <!-- Notifications -->
-                <li class="dropdown">
+                {{-- <li class="dropdown">
                     <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
                         <i class="material-icons">notifications</i>
                         <span class="label-count">7</span>
@@ -196,9 +240,24 @@
                             <a href="javascript:void(0);">View All Tasks</a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
                 <!-- #END# Tasks -->
-                <li class="pull-right"><a href="javascript:void(0);" class="js-right-sidebar" data-close="true"><i class="material-icons">more_vert</i></a></li>
+                {{-- <li class="pull-right"><a href="javascript:void(0);" class="js-right-sidebar" data-close="true"><i class="material-icons">more_vert</i></a></li> --}}
+                <li class="dropdown">
+                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                        <i class="material-icons">input</i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {{-- <li sclass="header" style="padding: 1em;">USER</li> --}}
+                        <li><a href="javascript:void(0);"><i class="material-icons">person</i>Profile</a></li>
+                        <li class="divider"></li>
+                        <li class="body">
+                            {!! Form::open(['route' => 'logout', 'style' => 'display:block;', 'id' => 'logout', 'method' => 'post']) !!}
+                            <button type="submit"><i class="material-icons">input</i>Logout</button>
+                            {!! Form::close() !!}
+                        </li>
+                    </ul>    
+                </li>
             </ul>
         </div>
     </div>

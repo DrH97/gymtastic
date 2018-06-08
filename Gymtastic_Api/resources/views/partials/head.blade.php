@@ -12,19 +12,25 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
 
     <!-- Bootstrap Core Css -->
-    <link href="{{ url('plugins/bootstrap/css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url('plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- Waves Effect Css -->
-    <link href="{{ url('plugins/node-waves/waves.css') }}" rel="stylesheet" />
+    <link href="{{ url('plugins/node-waves/waves.min.css') }}" rel="stylesheet" />
 
     <!-- Animation Css -->
-    <link href="{{ url('plugins/animate-css/animate.css') }}" rel="stylesheet" />
+    <link href="{{ url('plugins/animate-css/animate.min.css') }}" rel="stylesheet" />
+
+     <!-- Materialize Css -->
+     <link href="{{ url('plugins/materialize-css/materialize.min.css') }}" rel="stylesheet" />
 
     <!-- Morris Chart Css-->
-    <link href="{{ url('plugins/morrisjs/morris.css') }}" rel="stylesheet" />
+    <link href="{{ url('plugins/morrisjs/morris.min.css') }}" rel="stylesheet" />
 
     <!-- Custom Css -->
     <link href="{{ url('css/style.css') }}" rel="stylesheet">
 
     <!-- AdminBSB Themes. You can choose a theme from css/themes instead of get all themes -->
     <link href="{{ url('css/themes/all-themes.css') }}" rel="stylesheet" />
+
+     <!-- JQuery DataTable Css -->
+     <link href="{{ url('plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">

@@ -2,27 +2,70 @@
 <div class="overlay"></div>
 <!-- #END# Overlay For Sidebars -->
 
+<style>
+    .dropdown-menu > li > form > button {
+        padding: 7px 18px;
+        color: #666;
+        -moz-transition: all 0.5s;
+        -o-transition: all 0.5s;
+        -webkit-transition: all 0.5s;
+        transition: all 0.5s;
+        font-size: 14px;
+        line-height: 25px;
+        background: none;
+        border: none;
+        
+    }
+
+    .dropdown-menu > li > form > button i.material-icons {
+        float: left;
+        margin-right: 7px;
+        margin-top: 2px;
+        font-size: 20px;
+    }
+
+    .ml-menu li:hover {
+        background: #00aadd44;
+    }
+    .ml-menu li:hover i {
+        /* color: white; */
+    }
+
+    .sidebar .menu .list .ml-menu li a {
+        padding-left: 13px;
+    }
+
+    .sidebar .menu .list .ml-menu li {
+        
+        text-align: center;
+    }
+</style>
+
 <section>
     <!-- Left Sidebar -->
     <aside id="leftsidebar" class="sidebar">
         <!-- User Info -->
         <div class="user-info">
             <div class="image">
-                <img src="images/user.png" width="48" height="48" alt="User" />
+                <img src="{{ asset('images/user.png') }}" width="48" height="48" alt="User" />
             </div>
             <div class="info-container">
-                <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">John Doe</div>
-                <div class="email">john.doe@example.com</div>
+                <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ Auth()-> user()->firstname }}</div>
+                <div class="email">{{ Auth()-> user()->email }}</div>
                 <div class="btn-group user-helper-dropdown">
                     <i class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">keyboard_arrow_down</i>
                     <ul class="dropdown-menu pull-right">
                         <li><a href="javascript:void(0);"><i class="material-icons">person</i>Profile</a></li>
-                        <li role="seperator" class="divider"></li>
-                        <li><a href="javascript:void(0);"><i class="material-icons">group</i>Followers</a></li>
+                        {{-- <li role="seperator" class="divider"></li> --}}
+                        {{-- <li><a href="javascript:void(0);"><i class="material-icons">group</i>Followers</a></li>
                         <li><a href="javascript:void(0);"><i class="material-icons">shopping_cart</i>Sales</a></li>
-                        <li><a href="javascript:void(0);"><i class="material-icons">favorite</i>Likes</a></li>
+                        <li><a href="javascript:void(0);"><i class="material-icons">favorite</i>Likes</a></li> --}}
                         <li role="seperator" class="divider"></li>
-                        <li><a href="javascript:void(0);"><i class="material-icons">input</i>Sign Out</a></li>
+                        <li>
+                            {!! Form::open(['route' => 'logout', 'style' => 'display:block;', 'id' => 'logout', 'method' => 'post']) !!}
+                                <button type="submit" href="s"><i class="material-icons">input</i>Sign Out</button>
+                            {!! Form::close() !!}
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -31,20 +74,46 @@
         <!-- Menu -->
         <div class="menu">
             <ul class="list">
-                <li class="header">MAIN NAVIGATION</li>
+                {{-- <li class="header">MAIN NAVIGATION</li> --}}
                 <li class="active">
-                    <a href="index.html">
-                        <i class="material-icons">home</i>
-                        <span>Home</span>
+                    <a href="/">
+                        <i class="material-icons">dashboard</i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);"  class="menu-toggle toggled">
+                        <i class="material-icons">place</i>
+                        <span>Gym Locations</span>
+                    </a>
+                    <ul class="ml-menu" style="text-align:center;">
+                        <li style="display: inline-block;">
+                            <a href="#map"><i class="material-icons align-left">map</i></a>
+                        </li>
+                        <li style="display: inline-block">
+                            <a href="#add"><i class="material-icons">add_circle_outline</i></a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/">
+                        <i class="material-icons">supervisor_account</i>
+                        <span>Instructors</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/">
+                        <i class="material-icons">directions_run</i>
+                        <span>Workouts</span>
                     </a>
                 </li>
                 <li>
                     <a href="pages/typography.html">
-                        <i class="material-icons">text_fields</i>
-                        <span>Typography</span>
+                        <i class="material-icons">people</i>
+                        <span>Members</span>
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="pages/helper-classes.html">
                         <i class="material-icons">layers</i>
                         <span>Helper Classes</span>
@@ -363,24 +432,15 @@
                         <i class="material-icons col-light-blue">donut_large</i>
                         <span>Information</span>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </div>
         <!-- #Menu -->
-        <!-- Footer -->
-        <div class="legal">
-            <div class="copyright">
-                &copy; 2016 - 2017 <a href="javascript:void(0);">AdminBSB - Material Design</a>.
-            </div>
-            <div class="version">
-                <b>Version: </b> 1.0.5
-            </div>
-        </div>
-        <!-- #Footer -->
+        
     </aside>
     <!-- #END# Left Sidebar -->
     <!-- Right Sidebar -->
-    <aside id="rightsidebar" class="right-sidebar">
+    {{-- <aside id="rightsidebar" class="right-sidebar">
         <ul class="nav nav-tabs tab-nav-right" role="tablist">
             <li role="presentation" class="active"><a href="#skins" data-toggle="tab">SKINS</a></li>
             <li role="presentation"><a href="#settings" data-toggle="tab">SETTINGS</a></li>
@@ -520,6 +580,6 @@
                 </div>
             </div>
         </div>
-    </aside>
+    </aside> --}}
     <!-- #END# Right Sidebar -->
 </section>

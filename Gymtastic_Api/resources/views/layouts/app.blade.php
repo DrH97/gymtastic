@@ -71,6 +71,26 @@
 <button type="submit">Logout</button>
 {!! Form::close() !!}
 
+<style>
+    body {
+        width: 100vw;
+        overflow-x: hidden;
+    }
+    .legal {
+        padding: 1em;
+        background: white;
+        width: calc(100% - 300px);
+        text-align: center;
+        float: right;
+    }
+
+    body.ls-closed .legal {
+        width: 100%;
+        float: none;
+    }
+</style>
+
+@include('partials.footer');
 @include('partials.scripts')
 </body>
 </html>
