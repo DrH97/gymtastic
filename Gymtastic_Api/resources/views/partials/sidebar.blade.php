@@ -75,40 +75,41 @@
         <div class="menu">
             <ul class="list">
                 {{-- <li class="header">MAIN NAVIGATION</li> --}}
-                <li class="active">
+                {{-- {{ ( ! empty($data['name'] ? 'nameset' : 'namenotset') }} --}}
+                <li class="{{ ! empty($page) && ($page == 'dashboard' ? 'active' : '') }}">
                     <a href="/">
                         <i class="material-icons">dashboard</i>
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li>
+                <li class="{{ ! empty($page) && ($page == 'gymlocations' ? 'active' : '') }}">
                     <a href="javascript:void(0);"  class="menu-toggle toggled">
                         <i class="material-icons">place</i>
                         <span>Gym Locations</span>
                     </a>
                     <ul class="ml-menu" style="text-align:center;">
-                        <li style="display: inline-block;">
-                            <a href="#map"><i class="material-icons align-left">map</i></a>
+                        <li style="display: inline-block;" class="{{ ! empty($page) && ($page == 'gymlocations' ? 'active' : '') }}">
+                            <a href="/gyms"><i class="material-icons align-left">map</i></a>
                         </li>
-                        <li style="display: inline-block">
-                            <a href="#add"><i class="material-icons">add_circle_outline</i></a>
+                        <li style="display: inline-block" class="{{ ! empty($page) && ($page == 'gymlocations-add' ? 'active' : '') }}">
+                            <a href="/gyms/create"><i class="material-icons">add_circle_outline</i></a>
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a href="/">
+                <li class="{{ ! empty($page) && ($page == 'instructors' ? 'active' : '') }}">
+                    <a href="/instructors">
                         <i class="material-icons">supervisor_account</i>
                         <span>Instructors</span>
                     </a>
                 </li>
                 <li>
-                    <a href="/">
+                    <a href="/workouts">
                         <i class="material-icons">directions_run</i>
                         <span>Workouts</span>
                     </a>
                 </li>
                 <li>
-                    <a href="pages/typography.html">
+                    <a href="users">
                         <i class="material-icons">people</i>
                         <span>Members</span>
                     </a>

@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    @include('partials.head')
+    @include('partials.head', ['title' => ''])
 </head>
 
 
@@ -11,7 +11,7 @@
 <div id="wrapper">
 
 @include('partials.topbar')
-@include('partials.sidebar')
+@include('partials.sidebar', ['page' => ''])
 
     <!-- Page Loader -->
     <div class="page-loader-wrapper">
@@ -43,21 +43,6 @@
 
             <div class="row">
                 <div class="col-md-12">
-
-                    @if (Session::has('message'))
-                        <div class="alert alert-info">
-                            <p>{{ Session::get('message') }}</p>
-                        </div>
-                    @endif
-                    @if ($errors->count() > 0)
-                        <div class="alert alert-danger">
-                            <ul class="list-unstyled">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
 
                     @yield('content')
 

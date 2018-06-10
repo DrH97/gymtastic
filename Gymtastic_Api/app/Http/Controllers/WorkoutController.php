@@ -15,6 +15,15 @@ class WorkoutController extends Controller
     public function index()
     {
         //
+        $workouts = Workout::all();
+        foreach ($workouts as $w) {
+            $w['member'] = $w->user->firstname . ' ' . $w->user->lastname;
+            $w['gym'] = $w->gymLocation;
+            // unset($w['gym_location']);
+        }
+
+        // return $workouts;
+        return view('admin.workouts.index', compact('workouts'));
     }
 
     /**

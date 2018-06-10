@@ -47,13 +47,13 @@ button:active, button:hover {
     <div class="container-fluid">
         <div class="navbar-header">
             <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
-            <a href="javascript:void(0);" class="bars"></a>
-            <a class="navbar-brand" href="index.html">GYMTASTIC</a>
+            <a href="javascript:void(0);" class="bars" style="margin-right: 2em;"></a>              
+            <a class="navbar-brand" href="/" style="margin-left: 2em;"><img src="{{ asset('images/logo.png') }}" alt="Gymtastic Logo" height="40px" style="padding: 0 2px; float:left; line-height: .8; margin-top: -10px;">YMTASTIC</a>
         </div>
         <div class="collapse navbar-collapse" id="navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
                 <!-- Call Search -->
-                <li><a href="javascript:void(0);" class="js-search" data-close="true"><i class="material-icons">search</i></a></li>
+                {{-- <li><a href="javascript:void(0);" class="js-search" data-close="true"><i class="material-icons">search</i></a></li> --}}
                 <!-- #END# Call Search -->
                 <!-- Notifications -->
                 {{-- <li class="dropdown">
@@ -243,9 +243,10 @@ button:active, button:hover {
                 </li> --}}
                 <!-- #END# Tasks -->
                 {{-- <li class="pull-right"><a href="javascript:void(0);" class="js-right-sidebar" data-close="true"><i class="material-icons">more_vert</i></a></li> --}}
+                
                 <li class="dropdown">
                     <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
-                        <i class="material-icons">input</i>
+                        <i class="material-icons">person</i>
                     </a>
                     <ul class="dropdown-menu">
                         {{-- <li sclass="header" style="padding: 1em;">USER</li> --}}

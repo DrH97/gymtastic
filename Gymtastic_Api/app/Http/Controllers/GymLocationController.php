@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\GymLocation;
 use Illuminate\Http\Request;
 
+use Mapper;
+
 class GymLocationController extends Controller
 {
     /**
@@ -16,8 +18,15 @@ class GymLocationController extends Controller
     {
         //
         $gyms = GymLocation::all(); 
+        Mapper::map(8.7832, 25.5085, ['marker' => false, 'zoom' => 4,]);
+
+        $gyms->each(function($gym) {
+            $content = '<b>' . $gym->name . '</b><br>From: ' . $gym->opening_time . '<br>To: ' . $gym->closing_time;
+
+            Mapper::informationWindow($gym->lat, $gym->long, $content, ['sopen' => true, 'maxWidth'=> 300, 'markers' => ['title' => 'Title', 'date' => 'Date']]);
+        });
         
-        return compact('gyms');
+        return view('admin.gymlocations.index', compact('gyms'));
     }
 
     /**
@@ -28,6 +37,7 @@ class GymLocationController extends Controller
     public function create()
     {
         //
+        return view('admin.gymlocations.create');
     }
 
     /**
@@ -39,6 +49,16 @@ class GymLocationController extends Controller
     public function store(Request $request)
     {
         //
+        // return $request;
+        $name = $request->name;
+        $opening_time = $request->opening_time;
+        $closing_time = $request->closing_time;
+        $lat = $request->lat;
+        $long = $request->lon;
+
+        $gym = GymLocation::create(compact('name', 'opening_time', 'closing_time', 'lat', 'long'));
+
+        return $gym ? $this->index() : ['message' => 'Error Saving Gym Location']; 
     }
 
     /**
@@ -57,24 +77,25 @@ class GymLocationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\GymLocation  $gymLocation
      * @return \Illuminate\Http\Response
      */
-    public function edit(GymLocation $gymLocation)
+    public function edit($gymLocation)
     {
         //
+        $gym = GymLocation::find($gymLocation);
+        return view('admin.gymlocations.edit', compact('gym'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\GymLocation  $gymLocation
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, GymLocation $gymLocation)
+    public function update(Request $request, $gymLocation)
     {
         //
+        return $request . ' ' . $gymLocation;
     }
 
     /**

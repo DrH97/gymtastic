@@ -15,7 +15,13 @@ class InstructorController extends Controller
     public function index()
     {
         //
-        return Instructor::all();
+        $instructors = Instructor::all();
+        foreach ($instructors as $i) {
+            $i['gym'] = $i->gymLocation->name;
+            unset($i['gym_location']);
+        }
+
+        return view('admin.instructors.index', compact('instructors'));
     }
 
     /**
@@ -26,6 +32,8 @@ class InstructorController extends Controller
     public function create()
     {
         //
+        $gyms = \App\GymLocation::all();
+        return view('admin.instructors.create', compact('gyms'));
     }
 
     /**
@@ -37,6 +45,27 @@ class InstructorController extends Controller
     public function store(Request $request)
     {
         //
+        $validations = $request->validate([
+            'photo' => 'sometimes|image|size:2048',
+            'name' => 'required',
+            'contact' => 'required|numeric',
+            'email' => 'required|email|unique:instructors_92879',
+            'gender' => 'required',
+        ]);
+
+        $path = $request->file('photo')->store('avatars/instructors');
+
+        $instructor = new Instructor();
+        $instructor->name = $request->name;
+        $instructor->contacts = $request->contact;
+        $instructor->email = $request->email;
+        $instructor->photo = $path;
+        $instructor->gender = $request->gender;
+        $instructor->gym_location_id = $request->gymlocation;
+
+        $instructor->save();
+
+        return $this->index();
     }
 
     /**

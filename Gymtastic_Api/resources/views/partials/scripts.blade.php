@@ -23,6 +23,14 @@
 <!-- ChartJs -->
 <script src="{{ url('plugins/chartjs/Chart.bundle.js') }}"></script>
 
+<!-- Dropzone Plugin Js -->
+<script src="{{ url('plugins/dropzone/dropzone.js') }}"></script>
+
+<!-- Select Plugin Js -->
+<script src="{{ url('plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
+
+
+
 <!-- Flot Charts Plugin Js -->
 <script src="{{ url('plugins/flot-charts/jquery.flot.js') }}"></script>
 <script src="{{ url('plugins/flot-charts/jquery.flot.resize.js') }}"></script>
@@ -33,15 +41,30 @@
 <!-- Sparkline Chart Plugin Js -->
 <script src="{{ url('plugins/jquery-sparkline/jquery.sparkline.js') }}"></script>
 
+<!-- Autosize Plugin Js -->
+<script src="{{ url('plugins/autosize/autosize.js') }}"></script>
+
+<!-- Moment Plugin Js -->
+<script src="{{ url('plugins/momentjs/moment.js') }}"></script>
+
+
+<!-- Bootstrap Material Datetime Picker Plugin Js -->
+<script src="{{ url('plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js') }}"></script>
+
+{{-- <script>
+    $('#time').bootstrapMaterialDatePicker({ date: false });
+</script> --}}
 <!-- Custom Js -->
 <script src="{{ url('js/admin.js') }}"></script>
 <script src="{{ url('js/pages/index.js') }}"></script>
+
+<script src="{{ url('js/pages/forms/basic-form-elements.js') }}"></script>
 
 <!-- Demo Js -->
 <script src="{{ url('js/demo.js') }}"></script>
 
 <!-- Jquery DataTable Plugin Js -->
-<script src="../../plugins/jquery-datatable/jquery.dataTables.js"></script>
+<script src="{{ url('/plugins/jquery-datatable/jquery.dataTables.js') }}"></script>
 {{-- <script src="../../plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js"></script>
 <script src="../../plugins/jquery-datatable/extensions/export/dataTables.buttons.min.js"></script>
 <script src="../../plugins/jquery-datatable/extensions/export/buttons.flash.min.js"></script>

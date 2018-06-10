@@ -15,7 +15,8 @@ class UserController extends Controller
     public function index()
     {
         //
-        return User::all();
+        $users = User::all();
+        return view('admin.users.index', compact('users'));
     }
 
     /**
@@ -27,6 +28,18 @@ class UserController extends Controller
     public function store(Request $request)
     {
         //
+    }
+
+    /**
+     * Display the form for creating the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+        $gyms = \App\GymLocation::all();
+        return view('admin.users.create', compact('gyms'));
     }
 
     /**

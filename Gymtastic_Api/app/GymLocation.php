@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class GymLocation extends Model
 {
     //
+    protected $fillable = ['name', 'opening_time', 'closing_time', 'lat', 'long'];
 
     protected $table = 'gym_locations_92879';
 
@@ -16,5 +17,9 @@ class GymLocation extends Model
     
     public function instructors() {
         return $this->hasMany('App\Instructor');
+    }
+
+    public function workouts() {
+        return $this->hasMany('App\Workout');
     }
 }

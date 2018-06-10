@@ -13,4 +13,8 @@ class Workout extends Model
     public function user() {
         return $this->belongsTo('App\User');
     }
+
+    public function gymLocation() {
+        return $this->belongsTo('App\GymLocation');
+    }
 }

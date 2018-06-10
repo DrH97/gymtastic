@@ -23,6 +23,12 @@ Route::middleware('auth')->group(function() {
         Route::get('/{gym}/members', 'GymLocationController@gymMembers');
     });
 
+    Route::resource('workouts', 'WorkoutController');
+    Route::prefix('workouts')->group(function() {
+        Route::get('/{workout}/gym', 'WorkoutController@workoutGym');
+        Route::get('/{workout}/member', 'WorkoutController@workoutMember');
+    });
+
     Route::resource('instructors', 'InstructorController');
     Route::prefix('instructors')->group(function() {
         Route::get('/{instructor}/gyms', 'InstructorController@instructorGymLocation');

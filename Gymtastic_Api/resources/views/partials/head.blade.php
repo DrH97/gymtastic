@@ -3,7 +3,7 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     
-    <title>Gymtastic</title>
+    <title>{{ $title or 'Gymtastic' }}</title>
     <!-- Favicon-->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
@@ -33,4 +33,13 @@
     <link href="{{ url('css/themes/all-themes.css') }}" rel="stylesheet" />
 
      <!-- JQuery DataTable Css -->
-     <link href="{{ url('plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url('plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
+
+    <!-- Bootstrap Material Datetime Picker Css -->
+    <link href="{{ url('plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet') }}" />
+
+    <!-- Dropzone Css -->
+    <link href="{{ url('plugins/dropzone/dropzone.css" rel="stylesheet') }}">
+
+     <!-- Bootstrap Select Css -->
+     <link href="{{ url('plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" />

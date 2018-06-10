@@ -6,7 +6,7 @@
     <div class="container-fluid">
         <div class="block-header">
             <h2>
-                USERS | <button onclick="window.location = '/users/create'">CREATE NEW</button>
+                WORKOUTS | <button onclick="window.location = '/workouts/create'">CREATE NEW</button>
             </h2>
         </div>
         <!-- Basic Examples -->
@@ -15,7 +15,7 @@
                 <div class="card">
                     <div class="header">
                         <h2>
-                               ALL USERS
+                               ALL WORKOUTS
                         </h2>
                         {{-- <ul class="header-dropdown m-r--5">
                             <li class="dropdown">
@@ -35,38 +35,35 @@
                             <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
                                 <thead>
                                     <tr>
-                                        <th>Photo</th>
-                                        <th>Firstname</th>
-                                        <th>Lirstname</th>
-                                        <th>Email</th>
-                                        <th>Gym (if any)</th>
-                                        <th>Age</th>
-                                        <th>Gender</th>
+                                        <th>Member Name</th>
+                                        <th>Location (if any)</th>
+                                        <th>Date</th>
+                                        <th>Exercise Type</th>
+                                        <th>Reps</th>
+                                        <th>Sets</th>
                                         <th colspan="2">Actions</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
                                     <tr>
-                                        <th>Photo</th>
-                                        <th>Firstname</th>
-                                        <th>Lirstname</th>
-                                        <th>Email</th>
-                                        <th>Gym (if any)</th>
-                                        <th>Age</th>
-                                        <th>Gender</th>
+                                        <th>Member Name</th>
+                                        <th>Location (if any)</th>
+                                        <th>Date</th>
+                                        <th>Exercise Type</th>
+                                        <th>Reps</th>
+                                        <th>Sets</th>
                                         <th colspan="2">Actions</th>
                                     </tr>
                                 </tfoot>
                                <tbody>
-                                   @foreach ($users as $user)
+                                   @foreach ($workouts as $workout)
                                    <tr>
-                                       <td>{{ $user->photo }}</td>
-                                       <td>{{ $user->firstname }}</td>
-                                       <td>{{ $user->lastname }}</td>
-                                       <td>{{ $user->email }}</td>
-                                       <td>{{ $user->gym_location }}</td>
-                                       <td>{{ $user->age }}</td>
-                                       <td>{{ $user->gender }}</td>
+                                       <td>{{ $workout->member }}</td>
+                                       <td>{{ $workout->gym }}</td>
+                                       <td>{{ $workout->workout_date }}</td>
+                                       <td>{{ $workout->exercise_type }}</td>
+                                       <td>{{ $workout->reps }}</td>
+                                       <td>{{ $workout->sets }}</td>
                                        <td><a href="" style="color: bluegreen;"><i class="material-icons">edit</i></a></td>
                                        <td><a href="" style="color: red;"><i class="material-icons">delete</i></a></td>
                                     </tr>
