@@ -17,7 +17,8 @@ class GymLocationController extends Controller
     {
         //
         $gyms = GymLocation::all();
-        return $gyms;
+        $gyms = ["response" => $gyms];
+        return response()->json($gyms);
     }
 
     /**
