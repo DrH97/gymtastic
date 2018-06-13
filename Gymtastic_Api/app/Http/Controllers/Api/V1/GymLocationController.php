@@ -19,7 +19,7 @@ class GymLocationController extends Controller
         $gyms = GymLocation::all();
 
         $gyms = [
-            "total_results" => count($gym),
+            "total_results" => count($gyms),
             "results" => $gyms
         ];
         return response()->json($gyms);
