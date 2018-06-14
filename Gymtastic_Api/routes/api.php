@@ -13,9 +13,19 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+// Route::namespace('Api\Auth')->middleware('api')->prefix('/v1/users')-> group(function() {
+    
+//     // Route::post('/login', function(Request $request) {
+//     //     return 'true';
+//     // });
+//     Route::post('/logout', 'LoginController@logout');
+
+//     Route::post('/register', 'RegisterController@register');
+// });
 
 Route::namespace('Api\V1')->prefix('v1')->group(function() {
     Route::get('/', function() {
@@ -37,6 +47,9 @@ Route::namespace('Api\V1')->prefix('v1')->group(function() {
         return 'Unauthorized';
     });
     Route::prefix('users')->group(function() {
+        Route::post('/login', 'UserController@login');
+        Route::post('/logout', 'UserController@logout');
+
         Route::get('/{user}/gyms', 'UserController@memberGymLocation');
         Route::get('/{user}/workouts', 'UserController@memberWorkouts');
     });

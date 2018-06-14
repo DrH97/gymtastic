@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class UserController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -88,4 +90,5 @@ class UserController extends Controller
         
         return $member ? ($member->workouts ? $member->workouts : []) : [null];
     }
+    
 }

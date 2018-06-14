@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -74,5 +77,92 @@ class UserController extends Controller
         $member =  User::find($member);
         
         return $member ? ($member->workouts ? $member->workouts : []) : [null];
+    }
+
+     /**
+     * Handle a login request to the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function login(Request $request)
+    {
+        $validator = $this->validateLogin($request);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+        
+        if ($this->authenticate($request)){
+            $response = [
+                'status' => 'success',
+                'message' => 'successful authentication',
+                'user' => Auth::user(),
+            ];
+        } else {
+            $response = [
+                'status' => 'fail',
+                'message' => 'Invalied credentials',
+            ];
+        }
+        
+        return response()->json($response);
+    }
+
+    /**
+     * Validate the user login request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function validateLogin(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            $this->username() => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        return $validation;
+    }
+
+    /**
+     * Get the login username to be used by the controller.
+     *
+     * @return string
+     */
+    public function username()
+    {
+        return 'email';
+    }
+
+    public function authenticate(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            // Authentication passed...
+            return true;
+        }
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {        
+        Auth::logout();
+
+        $response = [
+            'status' => 'success',
+            'message' => 'successful Logging out',
+            'user' => Auth::user(),
+        ];
+
+        return response() ->json($response);
     }
 }

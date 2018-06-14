@@ -56,7 +56,13 @@ class GymLocationController extends Controller
         //
         $gym = GymLocation::find($gymLocation);
         // $gyms = $gymLocation;
-        return $gym;
+
+        $gym = [
+            "total_results" => count($gym),
+            "results" => $gym
+        ];
+
+        return response()->json($gym);
     }
 
     /**
@@ -98,7 +104,12 @@ class GymLocationController extends Controller
 
         $instructors = $gym->instructors;
 
-        return $instructors;
+        $instructors = [
+            "total_results" => count($instructors),
+            "results" => $instructors
+        ];
+
+        return response()->json($instructors);
     }
 
     public function gymMembers($gymLocation) {
@@ -106,6 +117,11 @@ class GymLocationController extends Controller
 
         $members = $gym->members;
 
-        return $members;
+        $members = [
+            "total_results" => count($members),
+            "results" => $members
+        ];
+
+        return response()->json($members);
     }
 }
