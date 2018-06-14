@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.android.gymtastic", appContext.getPackageName());
+        assertEquals("com.example.android.com.thetechtriad.drh.gymtastic", appContext.getPackageName());
     }
 }

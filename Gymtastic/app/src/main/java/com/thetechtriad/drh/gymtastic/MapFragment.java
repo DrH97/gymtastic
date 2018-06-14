@@ -1,8 +1,10 @@
-package com.example.android.gymtastic;
+package com.thetechtriad.drh.gymtastic;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
@@ -27,6 +30,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapFragment extends Fragment  implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
+    private LatLngBounds AFRICA = new LatLngBounds(
+            new LatLng(-40, -20), new LatLng(40,50));
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -68,10 +75,6 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -79,6 +82,18 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+        if (mMap == null) {
+            SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this); //it'll start map service, getMapAsync(), чтобы установить обратный вызов для фрагмента
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -110,9 +125,17 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng africa = new LatLng(-8.7832, 34.5085);
+        mMap.addMarker(new MarkerOptions().position(africa).title("Marker in Africa").snippet("Yess"));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(2.124, -2.234)).title("Marker 2 in Africa"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(africa));
+        // Create a LatLngBounds that includes Africa.
+
+// Set the camera to the greatest possible zoom level that includes the
+// bounds
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(AFRICA, 0));
+        mMap.setLatLngBoundsForCameraTarget(AFRICA);
+
     }
 
     /**
