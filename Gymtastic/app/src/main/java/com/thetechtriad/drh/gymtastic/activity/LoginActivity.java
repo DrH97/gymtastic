@@ -1,25 +1,25 @@
-package com.thetechtriad.drh.gymtastic;
+package com.thetechtriad.drh.gymtastic.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
+import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,45 +30,48 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.model.UserResponse;
+import com.thetechtriad.drh.gymtastic.rest.ApiClient;
+import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
- * A signup screen that offers signup via email/password.
+ * A login screen that offers login via email/password.
  */
-public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+    public static final String TAG = LoginActivity.class.getSimpleName();
     /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
+     * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the signup task to ensure we can cancel it if requested.
-     */
-    private UserSignupTask mAuthTask = null;
+//    private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
-    private View mSignupFormView;
+    private View mLoginFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
-        setupActionBar();
-        // Set up the sinup form.
+        setContentView(R.layout.activity_login);
+
+        // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -77,23 +80,23 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptSignup();
+                    attemptLogin();
                     return true;
                 }
                 return false;
             }
         });
 
-        Button mEmailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
-        mEmailSignUpButton.setOnClickListener(new OnClickListener() {
+        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptSignup();
+                attemptLogin();
             }
         });
 
-        mSignupFormView = findViewById(R.id.email_signup_form);
-        mProgressView = findViewById(R.id.signup_progress);
+        mLoginFormView = findViewById(R.id.email_login_form);
+        mProgressView = findViewById(R.id.login_progress);
     }
 
     private void populateAutoComplete() {
@@ -140,31 +143,20 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
     }
 
     /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setupActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Show the Up button in the action bar.
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    /**
-     * Attempts to sign in or register the account specified by the signup form.
+     * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual signup attempt is made.
+     * errors are presented and no actual login attempt is made.
      */
-    private void attemptSignup() {
-        if (mAuthTask != null) {
-            return;
-        }
+    private void attemptLogin() {
+//        if (mAuthTask != null) {
+//            return;
+//        }
 
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
-        // Store values at the time of the signup attempt.
+        // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
@@ -190,21 +182,23 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         }
 
         if (cancel) {
-            // There was an error; don't attempt signup and focus the first
+            // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
         } else {
             // Show a progress spinner, and kick off a background task to
-            // perform the user signup attempt.
+            // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserSignupTask(email, password);
-            mAuthTask.execute((Void) null);
+
+            UserLogin(email, password);
+//            mAuthTask = new UserLoginTask(email, password);
+//            mAuthTask.execute();
         }
     }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return email.contains("@") && email.contains(".");
     }
 
     private boolean isPasswordValid(String password) {
@@ -213,7 +207,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
     }
 
     /**
-     * Shows the progress UI and hides the signup form.
+     * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
@@ -223,12 +217,12 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mSignupFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mSignupFormView.animate().setDuration(shortAnimTime).alpha(
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mSignupFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -244,7 +238,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mSignupFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -285,14 +279,18 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(SignUpActivity.this,
+                new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
     }
 
-    public void loginActivity(View view) {
-        startActivity(new Intent(this, LoginActivity.class));
+    public void signUpActivity(View view) {
+        startActivity(new Intent(this, SignUpActivity.class));
+    }
+
+    public void forgotPassword(View view) {
+        Snackbar.make(view, "Password resets coming up!!!", Snackbar.LENGTH_SHORT).show();
     }
 
 
@@ -306,61 +304,123 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Represents an asynchronous signup/registration task used to authenticate
-     * the user.
-     */
-    public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
+    public void UserLogin (String mEmail, String mPassword) {
+        showProgress(true);
+        Boolean success = false;
 
-        private final String mEmail;
-        private final String mPassword;
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-        UserSignupTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
+        Call<UserResponse> call = apiInterface.attemptAuth(mEmail, mPassword);
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                if (response.body().getUser() != null) {
+                    success(true);
+                } else {
+                    success(false);
                 }
             }
 
-            // TODO: register the new account here.
-            return true;
-        }
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                Log.e(MainActivity.class.getSimpleName(), t.toString());
 
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
+                success(false);
 
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
             }
-        }
+        });
 
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
+    }
+
+    private void success(boolean b) {
+//        mAuthTask = null;
+        showProgress(false);
+
+        if (b) {
+            Context context = getApplicationContext();
+            SharedPreferences sharedPref = context.getSharedPreferences(
+                    getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("auth", true);
+            editor.apply();
+
+            Log.d(TAG, sharedPref.getAll().toString());
+
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+        } else {
+            mPasswordView.setError(getString(R.string.error_incorrect_password));
+            mPasswordView.requestFocus();
         }
     }
+
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+//    public class UserLoginTask extends AsyncTask<URL, Void, String> {
+//
+//        private final String mEmail;
+//        private final String mPassword;
+//
+//        UserLoginTask(String email, String password) {
+//            mEmail = email;
+//            mPassword = password;
+//        }
+//
+//        @Override
+//        protected String doInBackground(URL... urls) {
+//            // TODO: attempt authentication against a network service.
+//
+//            ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+//
+//            Call<UserResponse> call = apiInterface.attemptAuth(mEmail, mPassword);
+//
+//            call.enqueue(new Callback<UserResponse>() {
+//                @Override
+//                public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+//                    String message = response.body().getMessage();
+//                    String password = response.body().getPassword();
+//
+//                    Toast.makeText(getApplicationContext(), message + ' ' + password, Toast.LENGTH_LONG).show();
+//
+//                    onPostExecute("true");
+//                    return;
+//                }
+//
+//                @Override
+//                public void onFailure(Call<UserResponse> call, Throwable t) {
+//                    Log.e(MainActivity.class.getSimpleName(), t.toString());
+//
+//                    return;
+//                }
+//            });
+//
+//            // TODO: register the new account here.
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(final String success) {
+//            mAuthTask = null;
+//            showProgress(false);
+//
+//            if (success != null) {
+//                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//                finish();
+//            } else {
+//                mPasswordView.setError(getString(R.string.error_incorrect_password));
+//                mPasswordView.requestFocus();
+//            }
+//        }
+//
+//        @Override
+//        protected void onCancelled() {
+//            mAuthTask = null;
+//            showProgress(false);
+//        }
+//    }
 }
 

@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Gymtastic</string>
 
+    <string name="preference_file_key">com.thetechtriad.drh.gymtastic.PREFERENCE_FILE_KEY</string>
+
     <!-- Strings related to login -->
     <string name="prompt_email">Username/Email</string>
     <string name="prompt_password">Password</string>
@@ -41,4 +43,6 @@
     <string name="facebook_app_id">1114428632057506</string>
     <string name="fb_login_protocol_scheme">fb1114428632057506</string>
 
+
+    <string name="action_logout">Logout</string>
 </resources>

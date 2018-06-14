@@ -1,4 +1,4 @@
-package com.thetechtriad.drh.gymtastic;
+package com.thetechtriad.drh.gymtastic.activity;
 
 import android.net.Uri;
 

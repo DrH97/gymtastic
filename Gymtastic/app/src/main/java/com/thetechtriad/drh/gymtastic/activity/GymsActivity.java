@@ -1,4 +1,4 @@
-package com.thetechtriad.drh.gymtastic;
+package com.thetechtriad.drh.gymtastic.activity;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.thetechtriad.drh.gymtastic.R;
 
 public class GymsActivity extends FragmentActivity implements OnMapReadyCallback {
 

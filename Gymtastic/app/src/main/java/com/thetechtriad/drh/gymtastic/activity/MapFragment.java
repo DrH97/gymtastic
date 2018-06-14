@@ -1,4 +1,4 @@
-package com.thetechtriad.drh.gymtastic;
+package com.thetechtriad.drh.gymtastic.activity;
 
 import android.content.Context;
 import android.net.Uri;
@@ -17,6 +17,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.thetechtriad.drh.gymtastic.R;
 
 
 /**

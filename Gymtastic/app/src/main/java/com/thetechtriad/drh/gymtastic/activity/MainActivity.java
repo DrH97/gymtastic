@@ -1,5 +1,8 @@
-package com.thetechtriad.drh.gymtastic;
+package com.thetechtriad.drh.gymtastic.activity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+
+import com.thetechtriad.drh.gymtastic.R;
 
 public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener {
 
@@ -88,6 +93,17 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+
+        if (id == R.id.action_logout) {
+            SharedPreferences sharedPrefs = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.remove("auth");
+
+            editor.apply();
+
+            startActivity(new Intent(this, SplashScreenActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
