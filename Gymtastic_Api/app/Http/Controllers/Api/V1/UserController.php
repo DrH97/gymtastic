@@ -75,8 +75,22 @@ class UserController extends Controller
 
     public function memberWorkouts($member) {
         $member =  User::find($member);
-        
-        return $member ? ($member->workouts ? $member->workouts : []) : [null];
+
+        $workouts = $member->workouts;
+
+        if ($workouts != null)
+            $response = [
+                'status' => 'success',
+                'total_results' => count($workouts),
+                'results' => $workouts,
+            ];
+        else 
+            $response = [
+                'status' => 'success',
+                'total_results' => 0,
+            ];
+
+        return response() ->json($response);
     }
 
      /**
