@@ -50,6 +50,8 @@ Route::namespace('Api\V1')->prefix('v1')->group(function() {
         Route::post('/login', 'UserController@login');
         Route::post('/logout', 'UserController@logout');
 
+        Route::post('/register', 'UserController@register');
+
         Route::get('/{user}/gyms', 'UserController@memberGymLocation');
         Route::get('/{user}/workouts', 'UserController@memberWorkouts');
     });

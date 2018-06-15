@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
@@ -120,7 +122,7 @@ class UserController extends Controller
         } else {
             $response = [
                 'status' => 'fail',
-                'message' => 'Invalied credentials',
+                'message' => 'Invalid credentials',
             ];
         }
         
@@ -135,12 +137,10 @@ class UserController extends Controller
      */
     protected function validateLogin(Request $request)
     {
-        $validation = Validator::make($request->all(), [
+        return Validator::make($request->all(), [
             $this->username() => 'required|string|email',
             'password' => 'required|string',
         ]);
-
-        return $validation;
     }
 
     /**
@@ -180,5 +180,70 @@ class UserController extends Controller
         ];
 
         return response() ->json($response);
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(Request $request)
+    {
+        $validator = $this->validator($request->all());
+        // ->validate()
+        // return 'true';
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+        
+        event(new Registered($user = $this->create($request->all())));        
+        
+        if ($user){
+            $response = [
+                'status' => 'success',
+                'message' => 'successful registration',
+                'user' => $user,
+            ];
+        } else {
+            $response = [
+                'status' => 'fail',
+                'message' => 'An error occured, please try again',
+            ];
+        }
+        
+        return response()->json($response);
+    }
+
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users_92879',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+    }
+
+     /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param  array  $data
+     * @return \App\User
+     */
+    protected function create(array $data)
+    {
+        return User::create([
+            'firstname' => $data['firstname'],
+            'lastname' => $data['lastname'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
     }
 }
