@@ -76,7 +76,8 @@ class UserController extends Controller
     public function memberWorkouts($member) {
         $member =  User::find($member);
 
-        $workouts = $member->workouts;
+        if ($member != null)
+            $workouts = $member->workouts;
 
         if ($workouts != null)
             $response = [
@@ -86,7 +87,7 @@ class UserController extends Controller
             ];
         else 
             $response = [
-                'status' => 'success',
+                'status' => 'failed',
                 'total_results' => 0,
             ];
 
