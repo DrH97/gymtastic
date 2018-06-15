@@ -75,7 +75,8 @@ class UserController extends Controller
 
     public function memberWorkouts($member) {
         $member =  User::find($member);
-
+        $workouts = null;
+        
         if ($member != null)
             $workouts = $member->workouts;
 
