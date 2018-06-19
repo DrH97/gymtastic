@@ -317,9 +317,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
 
                 if (response.body().getUser() != null) {
-                    success(true);
+                    success(true, response.body().getUser().getId());
                 } else {
-                    success(false);
+                    success(false, 0);
                 }
             }
 
@@ -327,14 +327,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 Log.e(MainActivity.class.getSimpleName(), t.toString());
 
-                success(false);
+                success(false, 0);
 
             }
         });
 
     }
 
-    private void success(boolean b) {
+    private void success(boolean b, int userId) {
 //        mAuthTask = null;
         showProgress(false);
 
@@ -344,6 +344,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     getString(R.string.preference_file_key), Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("auth", true);
+            editor.putInt("userId", userId);
             editor.apply();
 
             Log.d(TAG, sharedPref.getAll().toString());

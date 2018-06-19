@@ -16,7 +16,15 @@ class InstructorController extends Controller
     public function index()
     {
         //
-        return Instructor::all();
+        $instructors = Instructor::all();
+
+        $instructors = $instructors ? $instructors : [];
+
+        $instructors = [
+            "total_results" => count($instructors),
+            "results" => $instructors
+        ];
+        return response()->json($instructors);
     }
 
     /**
@@ -48,7 +56,16 @@ class InstructorController extends Controller
     public function show($instructor)
     {
         //
-        return Instructor::find($instructor);
+        $instructor = Instructor::find($instructor);
+
+        $instructor = $instructor ? array($instructor) : [];
+        
+        $instructor = [
+            "total_results" => count($instructor),
+            "results" => $instructor
+        ];
+
+        return response()->json($instructor);
     }
 
     /**
@@ -88,8 +105,13 @@ class InstructorController extends Controller
     public function instructorGymLocation($instructor) {
         $instructor = Instructor::find($instructor);
         
-        $gym = $instructor->gymLocation;
+        $gym = $instructor ? array($instructor->gymLocation) : [];
 
-        return $gym;
+        $gym = [
+            "total_results" => count($gym),
+            "results" => $gym
+        ];
+
+        return response()->json($gym);
     }
 }

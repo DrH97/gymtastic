@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -20,10 +22,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.thetechtriad.drh.gymtastic.PrefUtil;
 import com.thetechtriad.drh.gymtastic.R;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, WorkoutsFragment.OnFragmentInteractionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -38,12 +42,17 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     /**
      * The {@link ViewPager} that will host the section contents.
      */
+    private FloatingActionButton fab;
     private ViewPager mViewPager;
+    public int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences sharedPrefs = getApplication().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        userId = sharedPrefs.getInt("userId", 0);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -57,14 +66,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        tabLayout.getTabAt(0).setText("GYMS");
-        tabLayout.getTabAt(1).setText("WORKOUTS");
-        tabLayout.getTabAt(2).setText("HISTORY");
-
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -72,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 //                        .setAction("Action", null).show();
 //            }
 //        });
-
     }
 
 
@@ -96,14 +100,15 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         }
 
         if (id == R.id.action_logout) {
-            SharedPreferences sharedPrefs = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.remove("auth");
-
-            editor.apply();
+            PrefUtil prefUtil = new PrefUtil(this);
+            prefUtil.logoutUser();
 
             startActivity(new Intent(this, SplashScreenActivity.class));
+        }
+
+        if (id == R.id.action_profile) {
+
+            startActivity(new Intent(this, ProfileActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -111,7 +116,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
     @Override
     public void onFragmentInteraction(Uri uri) {
+    }
 
+    public void addNewWorkout(View view) {
+        Toast.makeText(this, "New Workouts coming up", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -143,8 +151,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+
             return rootView;
         }
     }
@@ -167,10 +174,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
                 case 0:
                     MapFragment tab1 = new MapFragment();
                     return tab1;
-//                case 1:
-//                    TabFragment2 tab2 = new TabFragment2();
-//                    return tab2;
-//                case 2:
+                case 1:
+                    WorkoutsFragment tab2 = new WorkoutsFragment();
+                    fab.setVisibility(View.VISIBLE);
+                    fab.show();
+                    return tab2;
+                case 2:
 //                    TabFragment3 tab3 = new TabFragment3();
 //                    return tab3;
                 default:

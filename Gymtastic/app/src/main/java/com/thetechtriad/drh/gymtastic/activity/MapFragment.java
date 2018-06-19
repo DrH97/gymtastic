@@ -34,7 +34,8 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
 
     private LatLngBounds AFRICA = new LatLngBounds(
             new LatLng(-40, -20), new LatLng(40,50));
-
+    private LatLngBounds AFRICABOUNDS = new LatLngBounds(
+            new LatLng(0, 17), new LatLng(0,17));
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -135,7 +136,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
 // Set the camera to the greatest possible zoom level that includes the
 // bounds
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(AFRICA, 0));
-        mMap.setLatLngBoundsForCameraTarget(AFRICA);
+        mMap.setLatLngBoundsForCameraTarget(AFRICABOUNDS);
 
     }
 

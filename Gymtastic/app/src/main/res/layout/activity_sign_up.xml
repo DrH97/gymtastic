@@ -15,16 +15,18 @@
     <ProgressBar
         android:id="@+id/signup_progress"
         style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        />
 
-    <!--<ScrollView-->
-        <!--android:id="@+id/signup_form"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--&gt;-->
+    <ScrollView
+        android:id="@+id/signup_form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        >
 
         <LinearLayout
             android:id="@+id/email_signup_form"
@@ -32,18 +34,19 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center"
+            android:layout_gravity="center"
             >
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <AutoCompleteTextView
+                <EditText
                     android:id="@+id/firstname"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_firstname"
-                    android:inputType="textPersonName"
+                    android:inputType="textCapWords|textPersonName"
                     android:maxLines="1"
                     android:singleLine="true" />
 
@@ -53,12 +56,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <AutoCompleteTextView
+                <EditText
                     android:id="@+id/lastname"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_lastname"
-                    android:inputType="textPersonName"
+                    android:inputType="textCapWords|textPersonName"
                     android:maxLines="1"
                     android:singleLine="true" />
 
@@ -91,6 +94,7 @@
                     android:imeActionId="6"
                     android:imeActionLabel="@string/action_sign_up_short"
                     android:imeOptions="actionUnspecified"
+                    android:importantForAutofill="no"
                     android:inputType="textPassword"
                     android:maxLines="1"
                     android:singleLine="true" />
@@ -99,13 +103,15 @@
 
             <Button
                 android:id="@+id/email_sign_up_button"
-                style="?android:textAppearanceSmall"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_up"
                 android:textStyle="bold"
-                android:backgroundTint="@color/colorAccent"
+                android:background="@color/colorAccent"
+                android:textColor="@color/icons"
+                android:layout_margin="@dimen/appbar_padding_top"
                 />
 
             <TextView
@@ -125,6 +131,5 @@
             </TextView>
         </LinearLayout>
 
-
-    <!--</ScrollView>-->
+    </ScrollView>
 </LinearLayout>

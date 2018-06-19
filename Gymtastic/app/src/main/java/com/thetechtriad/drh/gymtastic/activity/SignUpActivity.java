@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,9 +32,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.model.User;
+import com.thetechtriad.drh.gymtastic.model.UserResponse;
+import com.thetechtriad.drh.gymtastic.rest.ApiClient;
+import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -42,26 +51,15 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+    private final static String TAG = SignUpActivity.class.getSimpleName();
     /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the signup task to ensure we can cancel it if requested.
-     */
-    private UserSignupTask mAuthTask = null;
-
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private EditText mPasswordView, mFirstnameView, mLastnameView;
     private View mProgressView;
     private View mSignupFormView;
 
@@ -70,11 +68,13 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         setupActionBar();
-        // Set up the sinup form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        // Set up the signup form.
+        mEmailView = findViewById(R.id.email);
         populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mFirstnameView = findViewById(R.id.firstname);
+        mLastnameView = findViewById(R.id.lastname);
+        mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -86,7 +86,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
 
-        Button mEmailSignUpButton = (Button) findViewById(R.id.email_sign_up_button);
+        Button mEmailSignUpButton = findViewById(R.id.email_sign_up_button);
         mEmailSignUpButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -158,20 +158,35 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
      * errors are presented and no actual signup attempt is made.
      */
     private void attemptSignup() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
+        mFirstnameView.setError(null);
+        mLastnameView.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the signup attempt.
+        String firstname = mFirstnameView.getText().toString();
+        String lastname = mLastnameView.getText().toString();
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
+
+        // Check for a valid lastname, if the user entered one.
+        if (!TextUtils.isEmpty(lastname) && !isLastnameValid(lastname)) {
+            mLastnameView.setError(getString(R.string.error_invalid_lastname));
+            focusView = mLastnameView;
+            cancel = true;
+        }
+
+        // Check for a valid firstname, if the user entered one.
+        if (!TextUtils.isEmpty(firstname) && !isFirstnameValid(firstname)) {
+            mFirstnameView.setError(getString(R.string.error_invalid_firstname));
+            focusView = mFirstnameView;
+            cancel = true;
+        }
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
@@ -199,14 +214,23 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
             // Show a progress spinner, and kick off a background task to
             // perform the user signup attempt.
             showProgress(true);
-            mAuthTask = new UserSignupTask(email, password);
-            mAuthTask.execute((Void) null);
+            UserSignup(firstname,lastname,email,password);
         }
+    }
+
+    private boolean isFirstnameValid(String firstname) {
+        //TODO: Replace this with your own logic
+        return firstname.length() > 3;
+    }
+
+    private boolean isLastnameValid(String lastname) {
+        //TODO: Replace this with your own logic
+        return lastname.length() > 3;
     }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return email.contains("@") && email.contains(".");
     }
 
     private boolean isPasswordValid(String password) {
@@ -312,57 +336,82 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
      * Represents an asynchronous signup/registration task used to authenticate
      * the user.
      */
-    public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
+//    public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
+//
+//        private final String mEmail;
+//        private final String mPassword;
+//
+//        UserSignupTask(String email, String password) {
+//            mEmail = email;
+//            mPassword = password;
+//        }
+//
+//        @Override
+//        protected Boolean doInBackground(Void... params) {
+//            // TODO: attempt authentication against a network service.
+//
+//            try {
+//                // Simulate network access.
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                return false;
+//            }
+//
+//            for (String credential : DUMMY_CREDENTIALS) {
+//                String[] pieces = credential.split(":");
+//                if (pieces[0].equals(mEmail)) {
+//                    // Account exists, return true if the password matches.
+//                    return pieces[1].equals(mPassword);
+//                }
+//            }
+//
+//            // TODO: register the new account here.
+//            return true;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(final Boolean success) {
+//            mAuthTask = null;
+//            showProgress(false);
+//
+//            if (success) {
+//                finish();
+//            } else {
+//                mPasswordView.setError(getString(R.string.error_incorrect_password));
+//                mPasswordView.requestFocus();
+//            }
+//        }
+//
+//        @Override
+//        protected void onCancelled() {
+//            mAuthTask = null;
+//            showProgress(false);
+//        }
+//    }
 
-        private final String mEmail;
-        private final String mPassword;
+    public void UserSignup(String firstname, String lastname, String email, String password) {
 
-        UserSignupTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
+        Log.e(TAG, "Created user task");
+        finish();
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+        User user = new User(0, firstname, lastname, email, null, null, null, null, null, 0, 0);
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+        Call<UserResponse> call = apiInterface.registerUser(user);
+
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                Log.e(TAG, response.body().getStatus());
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+
             }
+        });
 
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
+        showProgress(false);
     }
 }
 

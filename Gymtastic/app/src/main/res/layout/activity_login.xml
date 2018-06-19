@@ -68,14 +68,14 @@
 
             <Button
                 android:id="@+id/email_sign_in_button"
-                style="?android:textAppearanceSmall"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_margin="16dp"
+                android:background="@color/colorAccent"
                 android:text="@string/action_sign_in"
-                android:textStyle="bold"
-                android:backgroundTint="@color/colorAccent"
-                />
+                android:textColor="@color/icons"
+                android:textStyle="bold" />
 
 
             <LinearLayout
@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="20px"
-                    android:text="Register"
+                    android:text="Sign Up"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="18sp"
                     android:onClick="signUpActivity"

@@ -42,7 +42,16 @@ class UserController extends Controller
     public function show($user)
     {
         //
-        return User::find($user);
+        $user = User::find($user);
+
+        $user = $user ? array($user) : [];
+
+        $user = [
+            "total_results" => count($user),
+            "results" => $user,
+        ];
+
+        return response()->json($user);
     }
 
     /**
@@ -71,29 +80,27 @@ class UserController extends Controller
     public function memberGymLocation($member) {
         $member =  User::find($member);
         
-        return $member ? ($member->memberGymLocation ? $member->memberGymLocation : []) : [null];
+        $gym = $member ? array($member->memberGymLocation) : [];
+
+        $gym = [
+            "total_results" => count($gym),
+            "results" => $gym,
+        ];
         
+        return response()->json($gym);
     }
 
     public function memberWorkouts($member) {
-        $member =  User::find($member);
-        $workouts = null;
+        $member =  User::find($member);        
         
-        if ($member != null)
-            $workouts = $member->workouts;
+        $workouts = $member ? $member->workouts : [];
 
-        if ($workouts != null)
-            $response = [
-                'status' => 'success',
-                'total_results' => count($workouts),
-                'results' => $workouts,
-            ];
-        else 
-            $response = [
-                'status' => 'failed',
-                'total_results' => 0,
-            ];
-
+        $response = [
+            'status' => 'success',
+            'total_results' => count($workouts),
+            'results' => $workouts,
+        ];
+       
         return response() ->json($response);
     }
 

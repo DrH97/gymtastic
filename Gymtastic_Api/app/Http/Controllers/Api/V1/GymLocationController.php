@@ -18,10 +18,13 @@ class GymLocationController extends Controller
         //
         $gyms = GymLocation::all();
 
+        $gyms = $gyms ? $gyms : [];
+
         $gyms = [
             "total_results" => count($gyms),
             "results" => $gyms
         ];
+
         return response()->json($gyms);
     }
 
@@ -55,7 +58,8 @@ class GymLocationController extends Controller
     {
         //
         $gym = GymLocation::find($gymLocation);
-        // $gyms = $gymLocation;
+
+        $gym = $gym ? array($gym) : [];
 
         $gym = [
             "total_results" => count($gym),
@@ -102,7 +106,7 @@ class GymLocationController extends Controller
     public function gymInstructors($gymLocation) {
         $gym = GymLocation::find($gymLocation);
 
-        $instructors = $gym->instructors;
+        $instructors = $gym ? $gym->instructors : [];
 
         $instructors = [
             "total_results" => count($instructors),
@@ -115,7 +119,7 @@ class GymLocationController extends Controller
     public function gymMembers($gymLocation) {
         $gym = GymLocation::find($gymLocation);
 
-        $members = $gym->members;
+        $members = $gym ? $gym->members :[];
 
         $members = [
             "total_results" => count($members),
