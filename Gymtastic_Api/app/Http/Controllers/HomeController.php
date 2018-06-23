@@ -64,4 +64,8 @@ class HomeController extends Controller
 
         return view('home', compact('workouts', 'gymlocations', 'members', 'instructors', 'gymLocationChartDatas', 'memberChartDatas', 'workoutChartDatas'));
     }
+
+    public function passwordresetsuccess() {
+        return view('auth.passwords.passwordresetsuccess');
+    }
 }

@@ -14,6 +14,7 @@
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
+Route::get('/passwordresetsuccess', 'HomeController@passwordreset')->name('passwordresetsuccess');
 
 Route::middleware('auth')->group(function() {
 
