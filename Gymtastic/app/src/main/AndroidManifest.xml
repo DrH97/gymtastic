@@ -104,8 +104,6 @@
         </activity>
         <activity android:name=".activity.ProfileActivity"
             android:parentActivityName=".activity.MainActivity">
-            <meta-data android:name="Profile">
-            </meta-data>
         </activity>
     </application>
 

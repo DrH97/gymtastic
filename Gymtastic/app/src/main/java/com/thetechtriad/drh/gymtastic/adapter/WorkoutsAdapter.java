@@ -49,7 +49,7 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.MyView
         holder.workoutDate.setText(workout.getWorkoutDate());
         holder.exercise.setText(workout.getExerciseType());
         holder.location.setText(""+workout.getLocationId());
-        holder.reps.setText(workout.getReps().toString() + "reps");
+        holder.reps.setText(workout.getReps().toString() + " reps");
         holder.sets.setText(workout.getSets().toString() + "sets");
     }
 
