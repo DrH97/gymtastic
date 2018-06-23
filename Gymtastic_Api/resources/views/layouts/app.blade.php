@@ -9,10 +9,6 @@
 <body class="hold-transition skin-blue sidebar-mini theme-deep-orange">
 
 <div id="wrapper">
-
-@include('partials.topbar')
-@include('partials.sidebar', ['page' => ''])
-
     <!-- Page Loader -->
     <div class="page-loader-wrapper">
         <div class="loader">
@@ -30,6 +26,9 @@
         </div>
     </div>
     <!-- #END# Page Loader -->
+
+@include('partials.topbar')
+@include('partials.sidebar', ['page' => ''])
 
 <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
