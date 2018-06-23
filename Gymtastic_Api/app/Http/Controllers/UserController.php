@@ -81,7 +81,7 @@ class UserController extends Controller
     public function memberGymLocation($member) {
         $member =  User::find($member);
         
-        return $member ? ($member->memberGymLocation ? $member->memberGymLocation : []) : [null];
+        return $member ? ($member->memberGymLocation ? $member->memberGymLocation : []) : [];
         
     }
 

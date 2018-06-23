@@ -15,7 +15,7 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="card">
                     <div class="header">
-                        <h2>INSTRUCTOR CREATE</h2>
+                        <h2>USERS CREATE</h2>
                         {{-- <ul class="header-dropdown m-r--5">
                             <li class="dropdown">
                                 <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -46,7 +46,7 @@
                             </div>
                         @endif
                         
-                        <form action="/instructors" method="post" enctype="multipart/form-data">
+                        <form action="/users" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="row clearfix">
                                 {{-- <div class="col-xs-12 dropzone" action="/instructors" id="frmFileUpload">
@@ -61,7 +61,7 @@
                                     <div class="form-group">
                                         <label for="photo">Photo</label>
                                         {{-- <div class="form-line"> --}}
-                                        <input name="photo" type="file" class="form-control" placeholder="Select image" required value="{{ old('photo') }}">
+                                        <input name="photo" type="file" class="form-control" placeholder="Select image" value="{{ old('photo') }}">
                                         {{-- </div> --}}
                                     </div>
                                 </div>
