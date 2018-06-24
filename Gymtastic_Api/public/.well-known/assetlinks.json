@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.thetechtriad.drh.gymtastic",
+    "sha256_cert_fingerprints":
+    ["20:3F:39:4C:01:D2:1F:EF:68:6E:DA:89:37:44:03:0A:BB:FB:09:1D:CC:D3:FF:EB:67:78:72:BD:A3:4B:F5:11"]
+  }
+}]
