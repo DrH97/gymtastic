@@ -38,6 +38,8 @@ Route::namespace('Api\V1')->prefix('v1')->group(function() {
         Route::get('/{gym}/members', 'GymLocationController@gymMembers');
     });
 
+    Route::apiResource('workouts', 'WorkoutController');
+
     Route::apiResource('instructors', 'InstructorController')->except(['store', 'destroy']);
     Route::prefix('instructors')->group(function() {
         Route::get('/{instructor}/gym', 'InstructorController@instructorGymLocation');

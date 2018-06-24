@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Workout;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 
 class WorkoutController extends Controller
 {
@@ -37,6 +39,40 @@ class WorkoutController extends Controller
     public function store(Request $request)
     {
         //
+        $validator = $this->validateWorkout($request);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+
+        $user_id = $request->user_id;
+        $location_id = $request->location_id;
+        $workout_date = $request->workout_date;
+        $exercise_type = $request->exercise_type;
+        $reps = $request->reps;
+        $sets = $request->sets;
+
+        $workout = Workout::create(compact('user_id', 'location_id', 'workout_date', 'exercise_type', 'reps', 'sets'));
+
+        return $workout ? $workout : ['message' => 'Error Saving Workout']; 
+    }
+
+    /**
+     * Validate the user workout request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function validateWorkout(Request $request)
+    {
+        return Validator::make($request->all(), [
+            'user_id' => 'required|int|exists:users_92879,id',
+            'location_id' => 'int|exists:gym_locations_92879,id',
+            'workout_date' => 'required|date',
+            'exercise_type' => 'required|string',
+            'reps' => 'required|int|min:1',
+            'sets' => 'required|int|min:1',
+        ]);
     }
 
     /**
