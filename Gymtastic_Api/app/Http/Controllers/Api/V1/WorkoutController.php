@@ -67,7 +67,7 @@ class WorkoutController extends Controller
     {
         return Validator::make($request->all(), [
             'user_id' => 'required|int|exists:users_92879,id',
-            'location_id' => 'int|exists:gym_locations_92879,id',
+            'location_id' => 'sometimes|int|exists:gym_locations_92879,id|nullable',
             'workout_date' => 'required|date',
             'exercise_type' => 'required|string',
             'reps' => 'required|int|min:1',
