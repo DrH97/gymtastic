@@ -10,7 +10,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -20,6 +19,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.thetechtriad.drh.gymtastic.PrefUtil;
 import com.thetechtriad.drh.gymtastic.R;
 
@@ -27,6 +27,7 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -37,6 +38,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     private final static String TAG = SplashScreenActivity.class.getSimpleName();
 
     CallbackManager callbackManager;
+    LoginButton loginButton;
 
     private static final String EMAIL = "email";
     private static final String PUBLIC_PROFILE = "public_profile";
@@ -132,37 +134,8 @@ public class SplashScreenActivity extends AppCompatActivity {
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
 
-//        LoginButton loginButton = findViewById(R.id.login_button);
-        Button loginButton = findViewById(R.id.login_button_2);
-//        loginButton.setReadPermissions(Arrays.asList(PUBLIC_PROFILE, EMAIL));
-        // If you are using in a fragment, call loginButton.setFragment(this);
-
-        // Callback registration
-//        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-//            @Override
-//            public void onSuccess(LoginResult loginResult) {
-//                // App code
-//                Log.e(TAG, "Success facebook" + loginResult.getAccessToken());
-//                facebookLogin(loginResult);
-//
-//            }
-//
-//            @Override
-//            public void onCancel() {
-//                // App code
-//                Log.e(TAG, "Cancel facebook");
-//                Toast.makeText(getApplicationContext(), "onCancel", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void onError(FacebookException exception) {
-//                // App code
-//
-//                Log.e(TAG, "Error facebook" + exception.toString());
-//                Toast.makeText(getApplicationContext(), "Error: "+exception.toString(), Toast.LENGTH_SHORT).show();
-//            }
-//
-//        });
+        loginButton = findViewById(R.id.login_button);
+        loginButton.setReadPermissions(Arrays.asList(PUBLIC_PROFILE, EMAIL));
 
         LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -329,23 +302,24 @@ public class SplashScreenActivity extends AppCompatActivity {
         return bundle;
     }
 
-    public void facebookLoginBtn(View view) {
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                // App code
-                facebookLogin(loginResult);
-            }
-
-            @Override
-            public void onCancel() {
-                // App code
-            }
-
-            @Override
-            public void onError(FacebookException exception) {
-                // App code
-            }
-        });
+    public void facebookLoginBtn() {
+        loginButton.performClick();
+//        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+//            @Override
+//            public void onSuccess(LoginResult loginResult) {
+//                // App code
+//                facebookLogin(loginResult);
+//            }
+//
+//            @Override
+//            public void onCancel() {
+//                // App code
+//            }
+//
+//            @Override
+//            public void onError(FacebookException exception) {
+//                // App code
+//            }
+//        });
     }
 }

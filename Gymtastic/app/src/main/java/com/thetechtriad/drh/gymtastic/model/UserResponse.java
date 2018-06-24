@@ -2,13 +2,32 @@ package com.thetechtriad.drh.gymtastic.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class UserResponse {
 
     @SerializedName("status")
     private String status;
+
+    @SerializedName("firstname")
+    private String[] firstname;
+
+    @SerializedName("lastname")
+    private String[] lastname;
+
+    public String[] getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String[] firstname) {
+        this.firstname = firstname;
+    }
+
+    public String[] getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String[] lastname) {
+        this.lastname = lastname;
+    }
 
     @SerializedName("email")
     private String[] email;

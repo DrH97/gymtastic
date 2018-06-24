@@ -1,16 +1,29 @@
 package com.thetechtriad.drh.gymtastic.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -18,12 +31,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.thetechtriad.drh.gymtastic.PrefUtil;
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.model.Gym;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, WorkoutsFragment.OnFragmentInteractionListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, WorkoutsFragment.OnFragmentInteractionListener, AdapterView.OnItemSelectedListener {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -38,9 +62,24 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     /**
      * The {@link ViewPager} that will host the section contents.
      */
+    private NavigationView navigationView;
+    private DrawerLayout drawer;
     private FloatingActionButton fab;
     private ViewPager mViewPager;
+    private Toolbar toolbar;
+
     public int userId;
+    public static int navItemIndex = 0;
+    public ProgressBar mProgressView;
+
+    private static final String TAG_HOME = "home";
+    public static String CURRENT_TAG = TAG_HOME;
+
+    private boolean shouldLoadHomeFragOnBackPress = true;
+    private Handler mHandler;
+
+    public Dialog workoutDialog;
+    ArrayList<Integer> spinnerArrayIds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +89,14 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         SharedPreferences sharedPrefs = getApplication().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         userId = sharedPrefs.getInt("userId", 0);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mHandler = new Handler();
+
+        drawer = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -65,16 +110,84 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        workoutDialog = new Dialog(MainActivity.this, R.style.Theme_AppCompat_NoActionBar);
+        workoutDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(100,0,0,0)));
+        workoutDialog.setContentView(R.layout.fragment_add_workout);
+        workoutDialog.setCancelable(true);
+
+        fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                workoutDialog.show();
+            }
+        });
+
+        loadNavHeader();
+
+        setUpNavigationView();
+
+        if (savedInstanceState == null) {
+            navItemIndex = 0;
+            CURRENT_TAG = TAG_HOME;
+            loadHomeFragment();
+        }
     }
 
+
+    private void loadNavHeader() {
+
+    }
+
+    private void loadHomeFragment() {
+
+    }
+
+    private void setUpNavigationView() {
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                return false;
+            }
+        });
+
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.openDrawer, R.string.closeDrawer) {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+        };
+
+        drawer.setDrawerListener(actionBarDrawerToggle);
+
+        actionBarDrawerToggle.syncState();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawers();
+            return;
+        }
+
+        if (shouldLoadHomeFragOnBackPress) {
+            if (navItemIndex != 0) {
+                navItemIndex = 0;
+                CURRENT_TAG = TAG_HOME;
+                loadHomeFragment();
+                return;
+            }
+        }
+
+        super.onBackPressed();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -116,7 +229,25 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     }
 
     public void addNewWorkout(View view) {
+        EditText exercise = workoutDialog.findViewById(R.id.et_exercise);
+        EditText reps = workoutDialog.findViewById(R.id.et_reps);
+        EditText sets = workoutDialog.findViewById(R.id.et_sets);
+        EditText date = workoutDialog.findViewById(R.id.et_date);
+        Spinner spinner = workoutDialog.findViewById(R.id.spinner);
+
+
+
         Toast.makeText(this, "New Workouts coming up", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     /**
@@ -191,5 +322,69 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
             // Show 3 total pages.
             return 3;
         }
+
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+//                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+//                mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+//                        show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+//                    }
+//                });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+//                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    public void setGymLocations(List<Gym> gyms) {
+        Spinner spinner = workoutDialog.findViewById(R.id.spinner);
+        ArrayList<String> spinnerArray = new ArrayList<>();
+        spinnerArrayIds = new ArrayList<>();
+
+        for (Gym gym: gyms) {
+            spinnerArrayIds.add(gym.getId());
+            spinnerArray.add(gym.getName());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = spinnerArrayIds.get(position).toString();
+                Toast.makeText(getApplicationContext(), selected, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 }

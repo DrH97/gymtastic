@@ -52,9 +52,10 @@
         android:layout_marginBottom="16dp"
         android:background="@color/colorAccent"
         android:drawableLeft="@android:drawable/ic_dialog_email"
-        android:drawablePadding="0dp"
+        android:drawablePadding="-30dp"
         android:padding="10dp"
         android:text="EMAIL"
+        android:textAlignment="center"
         android:textColor="@color/cardview_light_background"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/login_button_2"
@@ -94,6 +95,7 @@
         android:paddingTop="10dp"
         android:paddingRight="10dp"
         android:paddingBottom="10dp"
+        android:drawablePadding="-20dp"
         android:text="Facebook"
         android:textColor="@color/cardview_light_background"
         android:textSize="18sp"
@@ -102,5 +104,12 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:text="FACEBOOK"
         android:onClick="facebookLoginBtn"/>
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
 
 </android.support.constraint.ConstraintLayout>

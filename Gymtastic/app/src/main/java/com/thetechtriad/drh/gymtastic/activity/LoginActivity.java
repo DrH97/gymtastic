@@ -97,6 +97,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.email_login_form);
         mProgressView = findViewById(R.id.login_progress);
+        // ATTENTION: This was auto-generated to handle app links.
+        Intent appLinkIntent = getIntent();
+        String appLinkAction = appLinkIntent.getAction();
+        Uri appLinkData = appLinkIntent.getData();
     }
 
     private void populateAutoComplete() {
@@ -291,6 +295,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     public void forgotPassword(View view) {
         Snackbar.make(view, "Password resets coming up!!!", Snackbar.LENGTH_SHORT).show();
+        startActivity(new Intent(this, PasswordResetActivity.class));
     }
 
 

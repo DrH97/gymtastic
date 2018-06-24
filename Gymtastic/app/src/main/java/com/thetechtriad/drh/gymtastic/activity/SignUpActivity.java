@@ -3,22 +3,19 @@ package com.thetechtriad.drh.gymtastic.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,6 +27,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.thetechtriad.drh.gymtastic.R;
 import com.thetechtriad.drh.gymtastic.model.User;
@@ -392,17 +390,46 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
     public void UserSignup(String firstname, String lastname, String email, String password) {
 
         Log.e(TAG, "Created user task");
-        finish();
+//        finish();
 
         User user = new User(0, firstname, lastname, email, null, null, null, null, null, 0, 0);
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-        Call<UserResponse> call = apiInterface.registerUser(user);
+        Call<UserResponse> call = apiInterface.registerUser(user.getFirstname(), user.getLastname(), user.getEmail(), password, password);
 
         call.enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                Log.e(TAG, response.body().getStatus());
+                assert response.body() != null;
+
+                String status = response.body().getStatus() != null ? response.body().getStatus() : null;
+                String email = response.body().getEmail() != null ? response.body().getEmail()[0] : null;
+                String password = response.body().getPassword() != null ? response.body().getPassword()[0] : null;
+                String firstname = response.body().getFirstname() != null ? response.body().getFirstname()[0] : null;
+                String lastname = response.body().getLastname() != null ? response.body().getLastname()[0] : null;
+
+                String message = response.body().getMessage();
+                if (status != null) {
+                    Log.e(TAG, status);
+                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                    finish();
+                }
+
+                if (email != null) {
+                    displayErrorMessageToast(email);
+                }
+                if (password != null) {
+                    displayErrorMessageToast(password);
+                }
+                if (status != null) {
+                    displayErrorMessageToast(status);
+                }
+                if (firstname != null) {
+                    displayErrorMessageToast(firstname);
+                }
+                if (lastname != null) {
+                    displayErrorMessageToast(lastname);
+                }
             }
 
             @Override
@@ -412,6 +439,10 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         });
 
         showProgress(false);
+    }
+
+    private void displayErrorMessageToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
 

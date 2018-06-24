@@ -18,6 +18,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.model.Gym;
+import com.thetechtriad.drh.gymtastic.model.GymResponse;
+import com.thetechtriad.drh.gymtastic.rest.ApiClient;
+import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -73,6 +83,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -127,9 +138,9 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng africa = new LatLng(-8.7832, 34.5085);
-        mMap.addMarker(new MarkerOptions().position(africa).title("Marker in Africa").snippet("Yess"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(2.124, -2.234)).title("Marker 2 in Africa"));
+//        LatLng africa = new LatLng(-8.7832, 34.5085);
+//        mMap.addMarker(new MarkerOptions().position(africa).title("Marker in Africa").snippet("Yess"));
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(2.124, -2.234)).title("Marker 2 in Africa"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(africa));
         // Create a LatLngBounds that includes Africa.
 
@@ -137,6 +148,33 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback {
 // bounds
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(AFRICA, 0));
         mMap.setLatLngBoundsForCameraTarget(AFRICABOUNDS);
+
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
+        Call<GymResponse> call = apiInterface.getGyms();
+
+        call.enqueue(new Callback<GymResponse>() {
+            @Override
+            public void onResponse(Call<GymResponse> call, Response<GymResponse> response) {
+                List<Gym> gyms = response.body().getGyms();
+                addGymMapMarkers(gyms);
+                ((MainActivity) getActivity()).setGymLocations(gyms);
+            }
+
+            @Override
+            public void onFailure(Call<GymResponse> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void addGymMapMarkers(List<Gym> gyms) {
+
+        for (Gym gym: gyms) {
+            LatLng africa = new LatLng(gym.getLatitude(), gym.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(africa).title(gym.getName()).snippet(gym.getOpening_time() + "\t- \t" + gym.getClosing_time()));
+        }
 
     }
 

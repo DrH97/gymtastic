@@ -48,92 +48,105 @@
         <!--tools:text="Location"-->
         <!--/>-->
 <!--</RelativeLayout>-->
-
-<android.support.v7.widget.CardView android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_width="match_parent"
+    android:padding="@dimen/appbar_padding_top">
 
-    <LinearLayout
+
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:id="@+id/photo_image_view"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/logo" />
+        android:layout_height="wrap_content"
+        card_view:cardCornerRadius="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:layout_height="wrap_content">
+            <ImageView
+                android:padding="@dimen/fab_margin"
+                android:id="@+id/photo_image_view"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/logo" />
 
-            <TextView
-                android:id="@+id/workout_date"
-                android:text="date"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-light"
-                android:textColor="@android:color/black"
-                android:padding="10dp"/>
-            <TextView
-                android:id="@+id/exercise"
-                android:text="Exercise"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="36sp"
-                android:fontFamily="sans-serif-light"
-                android:textColor="#83c"
-                android:padding="10dp"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp">
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
 
                 <TextView
-                    android:id="@+id/location"
-                    android:text="location"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/workout_date"
+                    android:text="date"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:fontFamily="sans-serif-light"
                     android:textColor="@android:color/black"
-                    android:background="#ccc"
                     android:padding="10dp"/>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/exercise"
+                    android:text="Exercise"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_toRightOf="@id/location"
-                    android:background="#ccc"
-                    >
+                    android:textSize="36sp"
+                    android:fontFamily="sans-serif-light"
+                    android:textColor="#83c"
+                    android:paddingLeft="10dp"
+                    android:paddingBottom="10dp"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
 
                     <TextView
-                        android:id="@+id/reps"
-                        android:text="reps"
+                        android:id="@+id/location"
+                        android:text="location"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:textSize="16sp"
                         android:fontFamily="sans-serif-light"
-                        android:textColor="#333"
-                        android:paddingTop="10dp"/>
-                    <TextView
-                        android:id="@+id/sets"
-                        android:text="sets"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-light"
-                        android:textColor="#833"
+                        android:textColor="@android:color/black"
+                        android:background="#ccc"
                         android:padding="10dp"/>
 
-                </LinearLayout>
-            </RelativeLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_toRightOf="@id/location"
+                        android:background="#ccc"
+                        >
 
+                        <TextView
+                            android:id="@+id/reps"
+                            android:text="reps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-light"
+                            android:textColor="#333"
+                            android:padding="10dp"
+                            android:paddingTop="10dp"/>
+                        <TextView
+                            android:id="@+id/sets"
+                            android:text="sets"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-light"
+                            android:textColor="#833"
+                            android:padding="10dp"/>
+
+                    </LinearLayout>
+                </RelativeLayout>
+
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-</android.support.v7.widget.CardView>
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
