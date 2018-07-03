@@ -1,6 +1,7 @@
 package com.thetechtriad.drh.gymtastic.rest;
 
 import com.thetechtriad.drh.gymtastic.model.GymResponse;
+import com.thetechtriad.drh.gymtastic.model.InstructorResponse;
 import com.thetechtriad.drh.gymtastic.model.UserResponse;
 import com.thetechtriad.drh.gymtastic.model.WorkoutResponse;
 
@@ -22,6 +23,9 @@ public interface ApiInterface {
 
     @GET("gyms")
     Call<GymResponse> getGyms();
+
+    @GET("instructors")
+    Call<InstructorResponse> getInstructors();
 
     @GET("users/{id}/workouts")
     Call<WorkoutResponse> getWorkouts(@Path("id") Integer userId);

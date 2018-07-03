@@ -7,7 +7,7 @@
     android:background="@android:color/white">
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/logo"
         android:layout_width="0dp"
         android:layout_height="100dp"
         android:layout_marginStart="32dp"
@@ -20,7 +20,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logo" />
+        app:srcCompat="@drawable/logo"
+        android:contentDescription="TODO" />
 
     <TextView
         android:id="@+id/fullscreen_content"
@@ -33,13 +34,13 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:keepScreenOn="true"
-        android:text="Gymtastic"
+        android:text="@string/gymtastic"
         android:textColor="#33b5e5"
         android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        app:layout_constraintTop_toBottomOf="@+id/logo" />
 
     <Button
         android:id="@+id/email_login_2"
@@ -54,14 +55,15 @@
         android:drawableLeft="@android:drawable/ic_dialog_email"
         android:drawablePadding="-30dp"
         android:padding="10dp"
-        android:text="EMAIL"
+        android:text="@string/email"
         android:textAlignment="center"
         android:textColor="@color/cardview_light_background"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/login_button_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:onClick="loginActivity"/>
+        android:onClick="loginActivity"
+        android:drawableStart="@android:drawable/ic_dialog_email" />
 
     <TextView
         android:id="@+id/textView"
@@ -72,7 +74,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        android:text="LOGIN WITH"
+        android:text="@string/login_with"
         android:textColor="@color/colorPrimaryText"
         app:layout_constraintBottom_toTopOf="@+id/email_login_2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -96,14 +98,17 @@
         android:paddingRight="10dp"
         android:paddingBottom="10dp"
         android:drawablePadding="-20dp"
-        android:text="Facebook"
+        android:text="@string/facebook"
         android:textColor="@color/cardview_light_background"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="FACEBOOK"
-        android:onClick="facebookLoginBtn"/>
+        android:onClick="facebookLoginBtn"
+        android:drawableStart="@drawable/com_facebook_button_icon_white"
+        android:paddingStart="20dp"
+        android:paddingEnd="10dp" />
 
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"

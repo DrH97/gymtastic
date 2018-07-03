@@ -116,20 +116,38 @@ public class SplashScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.setApplicationId(getString(R.string.facebook_app_id));
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        setContentView(R.layout.new_splash_screen);
+
+        Log.e(TAG, "On Create: Set content Done");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Log.e(TAG, "On Start");
+
+        callbackManager = CallbackManager.Factory.create();
+
+        Log.e(TAG, "On Start: Facebook callback created");
+
+        setup();
+    }
+
+    private void setup() {
+
+        Log.e(TAG, "On Create: Setup");
 
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.preference_file_key) ,Context.MODE_PRIVATE);
 
         if (sharedPref.getBoolean("auth", false)) {
+
+            Log.e(TAG, "On Create: User Logged in..., Redirecting");
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
-
-        FacebookSdk.setApplicationId(getString(R.string.facebook_app_id));
-        FacebookSdk.sdkInitialize(getApplicationContext());
-
-        callbackManager = CallbackManager.Factory.create();
-
-        setContentView(R.layout.new_splash_screen);
 
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
@@ -167,6 +185,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 //
 //        Log.e(TAG, ""+isLoggedIn);
 
+        Log.e(TAG, "On Create: Setup Completed");
     }
 
     @Override
@@ -302,7 +321,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         return bundle;
     }
 
-    public void facebookLoginBtn() {
+    public void facebookLoginBtn(View view) {
         loginButton.performClick();
 //        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
 //            @Override

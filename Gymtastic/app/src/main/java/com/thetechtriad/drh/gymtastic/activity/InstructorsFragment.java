@@ -3,8 +3,6 @@ package com.thetechtriad.drh.gymtastic.activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,9 +15,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.thetechtriad.drh.gymtastic.R;
-import com.thetechtriad.drh.gymtastic.adapter.WorkoutsAdapter;
-import com.thetechtriad.drh.gymtastic.model.Workout;
-import com.thetechtriad.drh.gymtastic.model.WorkoutResponse;
+import com.thetechtriad.drh.gymtastic.adapter.InstructorsAdapter;
+import com.thetechtriad.drh.gymtastic.model.Instructor;
+import com.thetechtriad.drh.gymtastic.model.InstructorResponse;
 import com.thetechtriad.drh.gymtastic.rest.ApiClient;
 import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
 
@@ -33,15 +31,14 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link WorkoutsFragment.OnFragmentInteractionListener} interface
+ * {@link InstructorsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link WorkoutsFragment#newInstance} factory method to
+ * Use the {@link InstructorsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class InstructorsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String TAG = WorkoutsFragment.class.getSimpleName();
-
+    private static final String TAG = InstructorsFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -51,16 +48,15 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
     private String mParam1;
     private String mParam2;
 
-    private List<Workout> workoutList = new ArrayList<>();
+    private List<Instructor> instructorList = new ArrayList<>();
     private RecyclerView recycler;
-    private WorkoutsAdapter wAdapter;
-    private int id;
+    private InstructorsAdapter iAdapter;
 
     private OnFragmentInteractionListener mListener;
     private ProgressBar mProgressBar;
     private SwipeRefreshLayout mySwipeRefreshLayout;
 
-    public WorkoutsFragment() {
+    public InstructorsFragment() {
         // Required empty public constructor
     }
 
@@ -68,12 +64,16 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment WorkoutsFragment.
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment InstructorsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static WorkoutsFragment newInstance() {
-        WorkoutsFragment fragment = new WorkoutsFragment();
+    public static InstructorsFragment newInstance(String param1, String param2) {
+        InstructorsFragment fragment = new InstructorsFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -85,82 +85,72 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-            }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_workouts, container, false);
+        View view = inflater.inflate(R.layout.fragment_instructors, container, false);
 
-        view.findViewById(R.id.tv_no_workouts).setVisibility(View.VISIBLE);
-        mySwipeRefreshLayout = view.findViewById(R.id.workoutsswiperrefresh);
+        view.findViewById(R.id.tv_no_instructors).setVisibility(View.VISIBLE);
+        mySwipeRefreshLayout = view.findViewById(R.id.instructorsswiperrefresh);
         mySwipeRefreshLayout.setOnRefreshListener(this);
-//        mListener.onFragmentInteraction(getUserId);
-        id = ((MainActivity)this.getActivity()).userId;
-        recycler = view.findViewById(R.id.workoutsRecycler);
 
+        recycler = view.findViewById(R.id.instructorsRecycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getActivity());
         recycler.setLayoutManager(layoutManager);
 
-        wAdapter = new WorkoutsAdapter(getContext(), workoutList);
+        iAdapter = new InstructorsAdapter(getContext(), instructorList);
 
-        recycler.setAdapter(wAdapter);
+        recycler.setAdapter(iAdapter);
 
-        prepareWorkoutData();
+        Log.e(TAG, "Created view: Getting data");
+//        mySwipeRefreshLayout.setRefreshing(true);
+        prepareInstructorData();
+
         return view;
     }
 
-    public void prepareWorkoutData() {
-        if (mProgressBar != null)
-            showLoader(true);
-
+    private void prepareInstructorData() {
+        Log.e(TAG, "Preparing instructor data");
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-        Call<WorkoutResponse> call = apiInterface.getWorkouts(id);
+        Call<InstructorResponse> call = apiInterface.getInstructors();
 
-        call.enqueue(new Callback<WorkoutResponse>() {
+        call.enqueue(new Callback<InstructorResponse>() {
             @Override
-            public void onResponse(Call<WorkoutResponse> call, Response<WorkoutResponse> response) {
-                List<Workout> workouts = response.body().getWorkouts();
-
-                setWorkoutData(workouts);
-//                Toast.makeText(getActivity(), "Successful Data Gotten", Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<InstructorResponse> call, Response<InstructorResponse> response) {
+                Log.e(TAG, "Response gotten");
+                setInstructorData(response.body().getInstructors());
             }
 
             @Override
-            public void onFailure(Call<WorkoutResponse> call, Throwable t) {
-                Toast.makeText(getActivity(), t.toString(), Toast.LENGTH_SHORT).show();
-                Log.e(TAG, t.toString());
+            public void onFailure(Call<InstructorResponse> call, Throwable t) {
+                Log.e(TAG, "Failed " + t.toString());
+
             }
         });
-
     }
 
-    private void setWorkoutData(List<Workout> workouts) {
-        if (workouts != null){
-            workoutList.clear();
-            for (int i=0; i < workouts.size(); i++)
-                workoutList.add(workouts.get(i));
+    private void setInstructorData(List<Instructor> instructors) {
 
-            getView().findViewById(R.id.tv_no_workouts).setVisibility(View.VISIBLE);
 
-            wAdapter.notifyDataSetChanged();
-        } else {
-            Toast.makeText(getActivity(), "Couldn't get any workouts", Toast.LENGTH_SHORT).show();
+        Log.e(TAG, "Setting instructor data");
+        if (instructors != null) {
+            instructorList.clear();
+            instructorList.addAll(instructors);
         }
+        else
+            Toast.makeText(getContext(), "Couldn't get instructors...", Toast.LENGTH_SHORT).show();
 
-//        showLoader(false);
+        getView().findViewById(R.id.tv_no_instructors).setVisibility(View.GONE);
+        iAdapter.notifyDataSetChanged();
+
         mySwipeRefreshLayout.setRefreshing(false);
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        mProgressBar = view.findViewById(R.id.pbWorkoutFragment);
-        showLoader(true);
-
-    }
-
+    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -186,8 +176,7 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     @Override
     public void onRefresh() {
-
-        prepareWorkoutData();
+        prepareInstructorData();
     }
 
     /**
@@ -201,17 +190,7 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
-    }
-
-    private void showLoader(boolean b) {
-        if (b) {
-            Log.e("MF", "Showing loader");
-            mProgressBar.setVisibility(View.VISIBLE);
-        } else {
-
-            Log.e("MF", "Removing loader");
-            mProgressBar.setVisibility(View.GONE);
-        }
     }
 }

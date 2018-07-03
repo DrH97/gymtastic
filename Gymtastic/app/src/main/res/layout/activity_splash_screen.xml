@@ -22,18 +22,19 @@
             android:layout_below="@+id/logo"
             android:keepScreenOn="true"
             android:layout_centerHorizontal="true"
-            android:text="Gymtastic"
+            android:text="@string/gymtastic"
             android:textColor="#33b5e5"
             android:textSize="40sp"
             android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/logo"
-            android:layout_width="100px"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerInParent="true"
-            android:src="@drawable/logo" />
+            android:src="@drawable/logo"
+            android:contentDescription="TODO" />
 
     </RelativeLayout>
 
@@ -55,7 +56,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:layout_marginBottom="80dp"
-            android:text="Facebook Login"
+            android:text="@string/facebook_login"
             />
 
         <RelativeLayout
@@ -69,7 +70,7 @@
                 android:id="@+id/email_login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Email"
+                android:text="@string/email"
                 android:textSize="20sp"
                 android:textAlignment="center"
                 android:padding="20dp"
@@ -80,14 +81,14 @@
                 android:id="@+id/email_registration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Register"
+                android:text="@string/register"
                 android:textSize="20sp"
                 android:textAlignment="center"
                 android:layout_toRightOf="@id/email_login"
                 android:padding="20dp"
                 android:textColor="@color/colorAccent"
                 android:onClick="signUpActivity"
-                />
+                android:layout_toEndOf="@id/email_login" />
 
         </RelativeLayout>
 

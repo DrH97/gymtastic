@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="prompt_email">Barua pepe/Jina la mtumiaji</string>
+    <string name="prompt_password">Nenosiri</string>
+    <string name="action_sign_in">Ingia</string>
+    <string name="action_sign_in_short">Ingia</string>
+    <string name="error_invalid_email">Barua pepe hili si sahihi</string>
+    <string name="error_invalid_password">Hili nenosiri ni fupi sana</string>
+    <string name="error_incorrect_password">Hili nenosiri si sahihi</string>
+    <string name="error_field_required">Lahitajika</string>
+    <string name="permission_rationale">Ruhusa la wasiliaji zahitajika</string>
+    <string name="title_activity_sign_up">Jisajili</string>
+    <string name="prompt_firstname">jina La Kwanza</string>
+    <string name="prompt_lastname">jina La Mwisho</string>
+    <string name="prompt_signup_email">Barua pepe</string>
+    <string name="prompt_signup_password">Neno Siri</string>
+    <string name="action_sign_up">Jisajili</string>
+    <string name="action_sign_up_short">Jisajili</string>
+    <string name="action_settings">Mipangilio</string>
+    <string name="error_invalid_firstname">Jina la kwanza lazima liwe zaidi ya herufi nne</string>
+    <string name="error_invalid_lastname">Jina la mwisho lazima liwe zaidi ya herufi nne</string>
+    <string name="tab_text_2">Mazoezi</string>
+    <string name="tab_text_3">Waelezi</string>
+    <string name="action_profile">Akaunti</string>
+    <string name="action_logout">Funga</string>
+    <string name="nav_home">Nyumbani</string>
+    <string name="nav_profile">Akaunti</string>
+    <string name="nav_share">Shirikisha programu</string>
+    <string name="nav_language">Lugha</string>
+    <string name="nav_settings">Mipangilio</string>
+    <string name="nav_about">Kuhusu</string>
+    <string name="nav_app_version">Toleo La Programu</string>
+    <string name="nav_privacy_policy">Sera ya Faragha</string>
+    <string name="nav_terms_and_conditions">Sheria na Masharti</string>
+    <string name="nav_sign_out">Funga</string>
+    <string name="activity_title_about_us">Kuhusu</string>
+    <string name="activity_title_privacy_policy">Sera ya Faragha</string>
+    <string name="privacy_policy">Sera ya Faragha</string>
+    <string name="terms_and_conditions">Sheria na Masharti</string>
+    <string name="sign_out">Funga</string>
+    <string name="action_refresh">Pata Matokeo Tena</string>
+    <string name="nav_header_desc">Picha la Mtumiaji</string>
+    <string name="forgot_password">Umesahau Nenosiri?</string>
+    <string name="sign_up">Jisajili</string>
+    <string name="have_an_account">Uko na Akaunti?</string>
+    <string name="email">Barua Pepe</string>
+    <string name="other">Mengineyo</string>
+    <string name="facebook_login" translatable="false">Ingia na Facebook</string>
+    <string name="register">Jisajili</string>
+    <string name="exercise">Zoezi</string>
+    <string name="date_opt">Tarehe</string>
+    <string name="add">Weka</string>
+    <string name="login_with">Ingia Na</string>
+    <string name="date">Tarehe</string>
+    <string name="location">Mahali</string>
+</resources>

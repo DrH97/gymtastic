@@ -26,6 +26,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,16 +37,22 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.thetechtriad.drh.gymtastic.PrefUtil;
 import com.thetechtriad.drh.gymtastic.R;
 import com.thetechtriad.drh.gymtastic.model.Gym;
+import com.thetechtriad.drh.gymtastic.model.WorkoutResponse;
+import com.thetechtriad.drh.gymtastic.rest.ApiClient;
+import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, WorkoutsFragment.OnFragmentInteractionListener, AdapterView.OnItemSelectedListener {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, WorkoutsFragment.OnFragmentInteractionListener, AdapterView.OnItemSelectedListener, InstructorsFragment.OnFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -80,17 +87,31 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
     public Dialog workoutDialog;
     ArrayList<Integer> spinnerArrayIds;
+    private Integer selected_location = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mProgressView = findViewById(R.id.login_progress);
 
+        showProgress(true);
         SharedPreferences sharedPrefs = getApplication().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         userId = sharedPrefs.getInt("userId", 0);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (savedInstanceState == null) {
+            navItemIndex = 0;
+            CURRENT_TAG = TAG_HOME;
+            loadHomeFragment();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         mHandler = new Handler();
 
@@ -104,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(3);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
@@ -127,13 +149,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         setUpNavigationView();
 
-        if (savedInstanceState == null) {
-            navItemIndex = 0;
-            CURRENT_TAG = TAG_HOME;
-            loadHomeFragment();
-        }
-    }
 
+    }
 
     private void loadNavHeader() {
 
@@ -168,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         actionBarDrawerToggle.syncState();
 
+        showProgress(false);
     }
 
     @Override
@@ -208,6 +226,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
             return true;
         }
 
+        if (id == R.id.action_refresh) {
+            WorkoutsFragment.newInstance().prepareWorkoutData();
+//            WorkoutsFragment workoutsFragment = (WorkoutsFragment) getSupportFragmentManager().findFragmentById(R.id.workoutsFragment);
+//            workoutsFragment.prepareWorkoutData();
+        }
+
         if (id == R.id.action_logout) {
             PrefUtil prefUtil = new PrefUtil(this);
             prefUtil.logoutUser();
@@ -233,11 +257,37 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         EditText reps = workoutDialog.findViewById(R.id.et_reps);
         EditText sets = workoutDialog.findViewById(R.id.et_sets);
         EditText date = workoutDialog.findViewById(R.id.et_date);
-        Spinner spinner = workoutDialog.findViewById(R.id.spinner);
+//        Spinner spinner = workoutDialog.findViewById(R.id.spinner);
+        String exercise_text = null, date_text = null;
+        int reps_text = 0, sets_text = 0;
 
+        if (!(exercise.getText().toString()).isEmpty())
+            exercise_text = exercise.getText().toString();
+        if (!(reps.getText().toString()).isEmpty())
+            reps_text = Integer.valueOf(reps.getText().toString());
+        if (!(sets.getText().toString()).isEmpty())
+            sets_text = Integer.valueOf(sets.getText().toString());
+        if (!(date.getText().toString()).isEmpty())
+            date_text = date.getText().toString();
 
+        Log.e(TAG, selected_location + ", " + date_text + ", " + exercise_text + ", " +reps_text + ", " +sets_text + "");
 
-        Toast.makeText(this, "New Workouts coming up", Toast.LENGTH_SHORT).show();
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
+        Call<WorkoutResponse> call = apiInterface.addWorkout(2, selected_location, date_text, exercise_text, reps_text, sets_text);
+
+        call.enqueue(new Callback<WorkoutResponse>() {
+            @Override
+            public void onResponse(Call<WorkoutResponse> call, Response<WorkoutResponse> response) {
+//                Log.e(TAG, response.body().getWorkout_date()[0]);
+//                Log.e(TAG, response.body().getWorkouts().get(0).getExerciseType());
+            }
+
+            @Override
+            public void onFailure(Call<WorkoutResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -304,12 +354,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
                     return tab1;
                 case 1:
                     WorkoutsFragment tab2 = new WorkoutsFragment();
-                    fab.setVisibility(View.VISIBLE);
-                    fab.show();
                     return tab2;
                 case 2:
-//                    TabFragment3 tab3 = new TabFragment3();
-//                    return tab3;
+                    InstructorsFragment tab3 = new InstructorsFragment();
+                    return tab3;
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
             }
@@ -377,8 +425,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selected = spinnerArrayIds.get(position).toString();
-                Toast.makeText(getApplicationContext(), selected, Toast.LENGTH_SHORT).show();
+                selected_location = spinnerArrayIds.get(position);
             }
 
             @Override
@@ -387,4 +434,5 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
             }
         });
     }
+
 }
