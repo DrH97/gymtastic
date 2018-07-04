@@ -54,7 +54,20 @@ class WorkoutController extends Controller
 
         $workout = Workout::create(compact('user_id', 'location_id', 'workout_date', 'exercise_type', 'reps', 'sets'));
 
-        return $workout ? $workout : ['message' => 'Error Saving Workout']; 
+	if ($workout){
+            $response = [
+                'status' => 'success',
+                'message' => 'successful addition of workout',
+                'workout' => $workout,
+            ];
+        } else {
+            $response = [
+                'status' => 'fail',
+                'message' => 'An error occured, please try again',
+            ];
+        }
+
+        return response()->json($response); 
     }
 
     /**
