@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.Utils;
 import com.thetechtriad.drh.gymtastic.adapter.InstructorsAdapter;
 import com.thetechtriad.drh.gymtastic.model.Instructor;
 import com.thetechtriad.drh.gymtastic.model.InstructorResponse;
@@ -36,7 +37,8 @@ import retrofit2.Response;
  * Use the {@link InstructorsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class InstructorsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class InstructorsFragment extends Fragment implements
+        SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = InstructorsFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
@@ -55,6 +57,8 @@ public class InstructorsFragment extends Fragment implements SwipeRefreshLayout.
     private OnFragmentInteractionListener mListener;
     private ProgressBar mProgressBar;
     private SwipeRefreshLayout mySwipeRefreshLayout;
+
+    private Utils utils;
 
     public InstructorsFragment() {
         // Required empty public constructor
@@ -81,6 +85,8 @@ public class InstructorsFragment extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        utils = new Utils(getActivity());
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -94,6 +100,7 @@ public class InstructorsFragment extends Fragment implements SwipeRefreshLayout.
         View view = inflater.inflate(R.layout.fragment_instructors, container, false);
 
         view.findViewById(R.id.tv_no_instructors).setVisibility(View.VISIBLE);
+
         mySwipeRefreshLayout = view.findViewById(R.id.instructorsswiperrefresh);
         mySwipeRefreshLayout.setOnRefreshListener(this);
 
@@ -114,37 +121,48 @@ public class InstructorsFragment extends Fragment implements SwipeRefreshLayout.
 
     private void prepareInstructorData() {
         Log.e(TAG, "Preparing instructor data");
-        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-        Call<InstructorResponse> call = apiInterface.getInstructors();
+        if (utils.isInternetConnected()) {
 
-        call.enqueue(new Callback<InstructorResponse>() {
-            @Override
-            public void onResponse(Call<InstructorResponse> call, Response<InstructorResponse> response) {
-                Log.e(TAG, "Response gotten");
-                setInstructorData(response.body().getInstructors());
-            }
+            ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-            @Override
-            public void onFailure(Call<InstructorResponse> call, Throwable t) {
-                Log.e(TAG, "Failed " + t.toString());
+            Call<InstructorResponse> call = apiInterface.getInstructors();
 
-            }
-        });
+            call.enqueue(new Callback<InstructorResponse>() {
+                @Override
+                public void onResponse(Call<InstructorResponse> call, Response<InstructorResponse> response) {
+                    Log.e(TAG, "Response gotten");
+                    setInstructorData(response.body().getInstructors());
+                }
+
+                @Override
+                public void onFailure(Call<InstructorResponse> call, Throwable t) {
+                    Log.e(TAG, "Failed " + t.toString());
+
+                    mySwipeRefreshLayout.setRefreshing(false);
+
+                }
+            });
+
+        } else {
+            utils.toastMessage("No internet connected");
+            mySwipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void setInstructorData(List<Instructor> instructors) {
-
 
         Log.e(TAG, "Setting instructor data");
         if (instructors != null) {
             instructorList.clear();
             instructorList.addAll(instructors);
         }
-        else
+        else {
             Toast.makeText(getContext(), "Couldn't get instructors...", Toast.LENGTH_SHORT).show();
 
-        getView().findViewById(R.id.tv_no_instructors).setVisibility(View.GONE);
+            getView().findViewById(R.id.tv_no_instructors).setVisibility(View.GONE);
+        }
+
         iAdapter.notifyDataSetChanged();
 
         mySwipeRefreshLayout.setRefreshing(false);

@@ -291,7 +291,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             URL profile_pic;
             try {
                 profile_pic = new URL("https://graph.facebook.com/" + id + "/picture?type=large");
-                Log.i("profile_pic", profile_pic + "");
+                Log.e("profile_pic", profile_pic + "");
                 bundle.putString("profile_pic", profile_pic.toString());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -315,7 +315,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                     object.getString("gender"), profile_pic.toString());
 
         } catch (Exception e) {
-            Log.d(TAG, "BUNDLE Exception : "+e.toString());
+            Log.e(TAG, "BUNDLE Exception : "+e.toString());
         }
 
         return bundle;

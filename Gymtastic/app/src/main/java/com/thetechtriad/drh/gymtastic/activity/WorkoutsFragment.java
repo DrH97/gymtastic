@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.Utils;
 import com.thetechtriad.drh.gymtastic.adapter.WorkoutsAdapter;
 import com.thetechtriad.drh.gymtastic.model.Workout;
 import com.thetechtriad.drh.gymtastic.model.WorkoutResponse;
@@ -60,6 +61,8 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
     private ProgressBar mProgressBar;
     private SwipeRefreshLayout mySwipeRefreshLayout;
 
+    private Utils utils;
+
     public WorkoutsFragment() {
         // Required empty public constructor
     }
@@ -81,6 +84,9 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        utils = new Utils(getActivity());
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -112,28 +118,37 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     public void prepareWorkoutData() {
-        if (mProgressBar != null)
-            showLoader(true);
+//        if (mProgressBar != null)
+//            showLoader(true);
 
-        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        if (utils.isInternetConnected()) {
 
-        Call<WorkoutResponse> call = apiInterface.getWorkouts(id);
+            ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-        call.enqueue(new Callback<WorkoutResponse>() {
-            @Override
-            public void onResponse(Call<WorkoutResponse> call, Response<WorkoutResponse> response) {
-                List<Workout> workouts = response.body().getWorkouts();
+            Call<WorkoutResponse> call = apiInterface.getWorkouts(id);
 
-                setWorkoutData(workouts);
-//                Toast.makeText(getActivity(), "Successful Data Gotten", Toast.LENGTH_SHORT).show();
-            }
+            call.enqueue(new Callback<WorkoutResponse>() {
+                @Override
+                public void onResponse(Call<WorkoutResponse> call, Response<WorkoutResponse> response) {
+                    List<Workout> workouts = response.body().getWorkouts();
 
-            @Override
-            public void onFailure(Call<WorkoutResponse> call, Throwable t) {
-                Toast.makeText(getActivity(), t.toString(), Toast.LENGTH_SHORT).show();
-                Log.e(TAG, t.toString());
-            }
-        });
+                    setWorkoutData(workouts);
+                    //                Toast.makeText(getActivity(), "Successful Data Gotten", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<WorkoutResponse> call, Throwable t) {
+//                    Toast.makeText(getActivity(), t.toString(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, t.toString());
+
+                    mySwipeRefreshLayout.setRefreshing(false);
+                }
+            });
+
+        } else {
+            utils.toastMessage("No Internet Connection");
+            mySwipeRefreshLayout.setRefreshing(false);
+        }
 
     }
 
@@ -186,7 +201,6 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     @Override
     public void onRefresh() {
-
         prepareWorkoutData();
     }
 

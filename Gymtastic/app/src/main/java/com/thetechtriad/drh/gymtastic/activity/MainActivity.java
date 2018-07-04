@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,6 +27,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,8 +40,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 
+import com.thetechtriad.drh.gymtastic.DatePickerFragment;
 import com.thetechtriad.drh.gymtastic.PrefUtil;
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.Utils;
 import com.thetechtriad.drh.gymtastic.model.Gym;
 import com.thetechtriad.drh.gymtastic.model.WorkoutResponse;
 import com.thetechtriad.drh.gymtastic.rest.ApiClient;
@@ -52,7 +56,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.OnFragmentInteractionListener, WorkoutsFragment.OnFragmentInteractionListener, AdapterView.OnItemSelectedListener, InstructorsFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements
+        MapFragment.OnFragmentInteractionListener,
+        WorkoutsFragment.OnFragmentInteractionListener,
+        AdapterView.OnItemSelectedListener,
+        InstructorsFragment.OnFragmentInteractionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -74,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     private FloatingActionButton fab;
     private ViewPager mViewPager;
     private Toolbar toolbar;
+    View header;
 
     public int userId;
     public static int navItemIndex = 0;
@@ -84,6 +93,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
     private boolean shouldLoadHomeFragOnBackPress = true;
     private Handler mHandler;
+    private Utils utils;
+
+    private WorkoutsFragment tab2;
 
     public Dialog workoutDialog;
     ArrayList<Integer> spinnerArrayIds;
@@ -93,7 +105,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mProgressView = findViewById(R.id.login_progress);
+
+        utils = new Utils(this);
+        utils.setLanguage(this);
+
+        mProgressView = findViewById(R.id.main_progress);
 
         showProgress(true);
         SharedPreferences sharedPrefs = getApplication().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -107,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
             CURRENT_TAG = TAG_HOME;
             loadHomeFragment();
         }
+
     }
 
     @Override
@@ -117,6 +134,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        header = navigationView.getHeaderView(0);
+
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -137,6 +156,15 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         workoutDialog.setContentView(R.layout.fragment_add_workout);
         workoutDialog.setCancelable(true);
 
+        EditText date = workoutDialog.findViewById(R.id.et_date);
+        date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment newFragment = new DatePickerFragment();
+                newFragment.show(getFragmentManager(), getString(R.string.date_picker));
+            }
+        });
+
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
         setUpNavigationView();
 
+        utils.setUpUserData(this, header);
 
     }
 
@@ -165,7 +194,29 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                return false;
+                int id = item.getItemId();
+
+                switch (id) {
+                    case R.id.nav_settings:
+                        startActivity(new Intent(getBaseContext(), SettingsActivity.class));
+                        drawer.closeDrawers();
+                        return true;
+                    case R.id.nav_share:
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_SEND);
+                        intent.putExtra(Intent.EXTRA_TEXT, "http://gymtastic-api.herokuapp.com/");
+                        intent.setType("text/plain");
+                        startActivity(intent);
+                        return true;
+                    case R.id.nav_profile:
+                        return true;
+                    case R.id.nav_about:
+                        return true;
+                    case R.id.nav_sign_out:
+                        logout();
+                    default:
+                        return false;
+                }
             }
         });
 
@@ -186,6 +237,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         actionBarDrawerToggle.syncState();
 
         showProgress(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Utils.setLanguage(this);
     }
 
     @Override
@@ -227,17 +284,13 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         }
 
         if (id == R.id.action_refresh) {
-            WorkoutsFragment.newInstance().prepareWorkoutData();
+//            WorkoutsFragment.newInstance().prepareWorkoutData();
 //            WorkoutsFragment workoutsFragment = (WorkoutsFragment) getSupportFragmentManager().findFragmentById(R.id.workoutsFragment);
 //            workoutsFragment.prepareWorkoutData();
         }
 
         if (id == R.id.action_logout) {
-            PrefUtil prefUtil = new PrefUtil(this);
-            prefUtil.logoutUser();
-
-            startActivity(new Intent(this, SplashScreenActivity.class));
-            finish();
+            logout();
         }
 
         if (id == R.id.action_profile) {
@@ -248,11 +301,23 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         return super.onOptionsItemSelected(item);
     }
 
+    private void logout() {
+        PrefUtil prefUtil = new PrefUtil(this);
+        prefUtil.logoutUser();
+
+        startActivity(new Intent(this, SplashScreenActivity.class));
+        finish();
+    }
+
     @Override
     public void onFragmentInteraction(Uri uri) {
     }
 
     public void addNewWorkout(View view) {
+
+        View focusView = null;
+        boolean cancel = false;
+
         EditText exercise = workoutDialog.findViewById(R.id.et_exercise);
         EditText reps = workoutDialog.findViewById(R.id.et_reps);
         EditText sets = workoutDialog.findViewById(R.id.et_sets);
@@ -261,33 +326,76 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         String exercise_text = null, date_text = null;
         int reps_text = 0, sets_text = 0;
 
-        if (!(exercise.getText().toString()).isEmpty())
-            exercise_text = exercise.getText().toString();
-        if (!(reps.getText().toString()).isEmpty())
-            reps_text = Integer.valueOf(reps.getText().toString());
-        if (!(sets.getText().toString()).isEmpty())
-            sets_text = Integer.valueOf(sets.getText().toString());
-        if (!(date.getText().toString()).isEmpty())
-            date_text = date.getText().toString();
+        // Check for a valid password, if the user entered one.
+        if (TextUtils.isEmpty(exercise.getText())) {
+            exercise.setError(getString(R.string.error_field_required));
+            focusView = exercise;
+            cancel = true;
+        }
+        if (TextUtils.isEmpty(reps.getText())) {
+            reps.setError(getString(R.string.error_field_required));
+            focusView = reps;
+            cancel = true;
+        }
+        if (TextUtils.isEmpty(sets.getText())) {
+            sets.setError(getString(R.string.error_field_required));
+            focusView = sets;
+            cancel = true;
+        }
+        if (TextUtils.isEmpty(date.getText())) {
+            date.setError(getString(R.string.error_field_required));
+            focusView = date;
+            cancel = true;
+        }
 
-        Log.e(TAG, selected_location + ", " + date_text + ", " + exercise_text + ", " +reps_text + ", " +sets_text + "");
+        if (cancel) {
 
-        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+            focusView.requestFocus();
+        } else {
 
-        Call<WorkoutResponse> call = apiInterface.addWorkout(2, selected_location, date_text, exercise_text, reps_text, sets_text);
+            showProgress(true);
+            workoutDialog.hide();
+            if (!(exercise.getText().toString()).isEmpty())
+                exercise_text = exercise.getText().toString();
+            if (!(reps.getText().toString()).isEmpty())
+                reps_text = Integer.valueOf(reps.getText().toString());
+            if (!(sets.getText().toString()).isEmpty())
+                sets_text = Integer.valueOf(sets.getText().toString());
+            if (!(date.getText().toString()).isEmpty())
+                date_text = date.getText().toString();
 
-        call.enqueue(new Callback<WorkoutResponse>() {
-            @Override
-            public void onResponse(Call<WorkoutResponse> call, Response<WorkoutResponse> response) {
-//                Log.e(TAG, response.body().getWorkout_date()[0]);
+            Log.e(TAG, selected_location + ", " + date_text + ", " + exercise_text + ", " +reps_text + ", " +sets_text + "");
+
+            ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
+            Call<WorkoutResponse> call = apiInterface.addWorkout(userId, selected_location, date_text, exercise_text, reps_text, sets_text);
+
+            call.enqueue(new Callback<WorkoutResponse>() {
+                @Override
+                public void onResponse(Call<WorkoutResponse> call, Response<WorkoutResponse> response) {
+                    Log.e(TAG, response.body().getStatus());
 //                Log.e(TAG, response.body().getWorkouts().get(0).getExerciseType());
-            }
 
-            @Override
-            public void onFailure(Call<WorkoutResponse> call, Throwable t) {
+                    utils.toastMessage("Response: " + response.body().getStatus());
+                    if (tab2 != null)
+                        tab2.onRefresh();
 
-            }
-        });
+                    mViewPager.setCurrentItem(1);
+                    showProgress(false);
+
+                }
+
+                @Override
+                public void onFailure(Call<WorkoutResponse> call, Throwable t) {
+                    Log.e(TAG, t.toString());
+                    workoutDialog.show();
+                    showProgress(false);
+                    utils.toastMessage("Failed to add wotkout \n" + t.toString());
+                }
+            });
+
+        }
+
     }
 
     @Override
@@ -298,6 +406,24 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_language_key))) {
+            Utils.setLanguage(this);
+            finish();
+            Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+//            Intent i = new Intent(this, MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+    }
+
+    public void processDatePickerResult(int year, int month, int dayOfMonth) {
+        EditText date = workoutDialog.findViewById(R.id.et_date);
+        date.setText(year + "-" + month + "-" + dayOfMonth);
     }
 
     /**
@@ -353,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
                     MapFragment tab1 = new MapFragment();
                     return tab1;
                 case 1:
-                    WorkoutsFragment tab2 = new WorkoutsFragment();
+                    tab2 = new WorkoutsFragment();
                     return tab2;
                 case 2:
                     InstructorsFragment tab3 = new InstructorsFragment();
@@ -361,8 +487,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
             }
-
-
         }
 
         @Override
@@ -406,7 +530,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
         }
     }
 
-    public void setGymLocations(List<Gym> gyms) {
+    public boolean setGymLocations(List<Gym> gyms) {
         Spinner spinner = workoutDialog.findViewById(R.id.spinner);
         ArrayList<String> spinnerArray = new ArrayList<>();
         spinnerArrayIds = new ArrayList<>();
@@ -433,6 +557,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.OnFra
 
             }
         });
+
+        return true;
     }
 
 }

@@ -75,6 +75,8 @@
         android:ems="10"
         android:inputType="date"
         android:hint="@string/date_opt"
+        android:clickable="true"
+        android:focusable="false"
         app:layout_constraintBottom_toTopOf="@+id/spinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

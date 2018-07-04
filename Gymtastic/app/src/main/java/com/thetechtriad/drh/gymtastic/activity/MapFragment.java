@@ -1,14 +1,21 @@
 package com.thetechtriad.drh.gymtastic.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,29 +24,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.Utils;
 import com.thetechtriad.drh.gymtastic.model.Gym;
 import com.thetechtriad.drh.gymtastic.model.GymResponse;
 import com.thetechtriad.drh.gymtastic.rest.ApiClient;
 import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 
@@ -51,7 +60,41 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
  * Use the {@link MapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRefreshLayout.OnRefreshListener, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
+public class MapFragment extends Fragment implements
+        OnMapReadyCallback,
+        SwipeRefreshLayout.OnRefreshListener,
+        GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnMyLocationClickListener,
+        GoogleMap.OnInfoWindowClickListener {
+
+    public class MapCustomInfoWindow implements GoogleMap.InfoWindowAdapter {
+        private Context context;
+
+        public MapCustomInfoWindow(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            View view = ((Activity)context).getLayoutInflater().inflate(R.layout.custom_info_window, null);
+
+            TextView title = view.findViewById(R.id.gym_title);
+            TextView open = view.findViewById(R.id.gym_open_time);
+            TextView close = view.findViewById(R.id.gym_close_time);
+
+            String[] times = marker.getSnippet().split("-");
+            title.setText(marker.getTitle());
+            open.setText(times[0].trim());
+            close.setText(times[1].trim());
+
+            return view;
+        }
+    }
 
     private static final int REQUEST_LOCATION = 0;
     private GoogleMap mMap;
@@ -69,6 +112,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
 
     private boolean zoomedToLocation = false;
     private LatLng africa;
+
+    private LocationManager locationManager;
+    private Location myLocation;
+    private Criteria criteria;
+    private String mProvider;
+    private LocationListener mLocationListener;
+
+    private static final int ONE_MIN = 1000 * 60;
+    private static final int TWO_MIN = 1000 * 60 * 2;
+
+    private Utils utils;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -107,6 +161,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        utils = new Utils(getActivity());
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -127,11 +183,49 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
         super.onViewCreated(view, savedInstanceState);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-        mProgressBar = getView().findViewById(R.id.pbMapFragment);
+        mProgressBar = view.findViewById(R.id.pbMapFragment);
         showLoader(true);
 
         mySwipeRefreshLayout = view.findViewById(R.id.mapsswiperrefresh);
         mySwipeRefreshLayout.setOnRefreshListener(this);
+
+        criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        mProvider = LocationManager.NETWORK_PROVIDER;
+
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+
+        mLocationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if (isBetterLocation(location, myLocation)) {
+                    utils.toastMessage("OnLocationChanged");
+                    myLocation = location;
+                    setLocation();
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                utils.toastMessage("OnStatusChanged");
+                mProvider = provider;
+                setLocation();
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                mProvider = provider;
+                setLocation();
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                mProvider = LocationManager.NETWORK_PROVIDER;
+                setLocation();
+            }
+        };
 
         if (mMap == null) {
             SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
@@ -139,7 +233,38 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
             mapFragment.getMapAsync(this); //it'll start map service, getMapAsync(), чтобы установить обратный вызов для фрагмента
         }
 
-        showLoader(false);
+    }
+
+    private void setLocation() {
+        if (!checkPermissions())
+            requestPermissions();
+    }
+
+    protected boolean checkPermissions() {
+        if (getContext() != null)
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            } else {
+                locationManager.requestLocationUpdates(mProvider, 0, 0, mLocationListener);
+                myLocation = locationManager.getLastKnownLocation(mProvider);
+
+                mMap.setOnMyLocationButtonClickListener(this);
+                mMap.setOnMyLocationClickListener(this);
+                setLocationControls();
+            }
+        return true;
+    }
+
+    private void setLocationControls() {
+        if (myLocation != null) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            mMap.setMyLocationEnabled(false);
+        }
+    }
+
+    protected void requestPermissions() {
+        requestPermissions(new String[]{ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -172,31 +297,73 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
         showLoader(true);
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-//        LatLng africa = new LatLng(-8.7832, 34.5085);
-//        mMap.addMarker(new MarkerOptions().position(africa).title("Marker in Africa").snippet("Yess"));
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(2.124, -2.234)).title("Marker 2 in Africa"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(africa));
-        // Create a LatLngBounds that includes Africa.
-
-// Set the camera to the greatest possible zoom level that includes the
-// bounds
+        MapCustomInfoWindow mapCustomInfoWindow = new MapCustomInfoWindow(getContext());
+        mMap.setInfoWindowAdapter(mapCustomInfoWindow);
         setDefaultMap();
 
-        if (ActivityCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        mMap.setOnInfoWindowClickListener(this);
+        if (!checkPermissions())
+            requestPermissions();
 
-            requestPermissions(new String[]{ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
-        } else {
-            setMapControls();
-        }
+        if (isInternetConnected())
+            getGymLocations();
+        else
+            utils.toastMessage("No internet, Please connect and try again...");
 
-        getGymLocations();
+//        locationManager.removeUpdates(mLocationListener);
+        showLoader(false);
+    }
 
+    protected boolean isBetterLocation(Location location, Location currentBestLocation) {
+        if (currentBestLocation == null)
+            return true;
+
+        long timeDelta = location.getTime() - currentBestLocation.getTime();
+        boolean isSignificantlyNewer = timeDelta > TWO_MIN;
+        boolean isSignificantlyOlder = timeDelta < -TWO_MIN;
+        boolean isNewer = timeDelta > 0;
+
+        if (isSignificantlyNewer)
+            return true;
+        else if (isSignificantlyOlder)
+            return false;
+
+        int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
+        boolean isLessAccurate = accuracyDelta > 0;
+        boolean isMoreAccurate = accuracyDelta < 0;
+        boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+
+        boolean isFromSameProvider = isSameProvider(location.getProvider(), currentBestLocation.getProvider());
+
+        if (isMoreAccurate)
+            return true;
+        else if (isNewer && !isLessAccurate)
+            return true;
+        else if (isNewer && !isSignificantlyLessAccurate && !isFromSameProvider)
+            return true;
+
+        return false;
+    }
+
+    private boolean isSameProvider(String provider1, String provider2) {
+        if (provider1 == null)
+            return provider2 == null;
+
+        return provider1.equals(provider2);
+    }
+
+    protected boolean isInternetConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     public void setDefaultMap() {
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(AFRICA, 0));
-        mMap.setLatLngBoundsForCameraTarget(AFRICABOUNDS);
+
+//        mMap.setLatLngBoundsForCameraTarget(AFRICABOUNDS);
     }
 
     @Override
@@ -204,24 +371,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setMapControls();
+                checkPermissions();
             } else {
-                Toast.makeText(getContext(), "Location permissions were denied...", Toast.LENGTH_SHORT).show();
+                utils.toastMessage("Location permissions were denied...");
             }
         }
     }
 
-    private void setMapControls() {
-//        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        mMap.setMyLocationEnabled(true);
-//        }
-        mMap.setOnMyLocationButtonClickListener(this);
-        mMap.setOnMyLocationClickListener(this);
-
-
-    }
-
     private void getGymLocations() {
+        mySwipeRefreshLayout.setRefreshing(true);
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
         Call<GymResponse> call = apiInterface.getGyms();
@@ -229,9 +387,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
         call.enqueue(new Callback<GymResponse>() {
             @Override
             public void onResponse(Call<GymResponse> call, Response<GymResponse> response) {
-                gyms = response.body().getGyms();
-                addGymMapMarkers(gyms);
-                ((MainActivity) getActivity()).setGymLocations(gyms);
+                if (response.body() != null) {
+                    gyms = response.body().getGyms();
+                    addGymMapMarkers(gyms);
+                    ((MainActivity) getActivity()).setGymLocations(gyms);
+                }
             }
 
             @Override
@@ -243,18 +403,65 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
 
     private void addGymMapMarkers(List<Gym> gyms) {
 
-        for (Gym gym : gyms) {
-            africa = new LatLng(gym.getLatitude(), gym.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(africa).title(gym.getName()).snippet(gym.getOpening_time() + "\t- \t" + gym.getClosing_time()));
-        }
+        if (gyms != null)
+            for (Gym gym : gyms) {
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(gym.getLatitude(), gym.getLongitude()))
+                        .title(gym.getName())
+                        .snippet(gym.getOpening_time() + "\t- \t" + gym.getClosing_time());
+
+                Marker m = mMap.addMarker(markerOptions);
+                m.setTag(gym.getId());
+                m.showInfoWindow();
+            }
+        else
+            Toast.makeText(getContext(), "No gyms gotten yet...", Toast.LENGTH_SHORT).show();
 
         showLoader(false);
         mySwipeRefreshLayout.setRefreshing(false);
     }
 
+    private void getNearGymLocations() {
+        if (gyms != null) {
+            List<Gym> closeGyms = new ArrayList<>();
+            float[] results = new float[1];
+
+            for (Gym gym : gyms) {
+                Location.distanceBetween(myLocation.getLatitude(), myLocation.getLongitude(), gym.getLatitude(), gym.getLongitude(), results);
+
+                if (results[0] < 50000) {
+                    closeGyms.add(gym);
+                }
+            }
+
+            if (closeGyms != null)
+                addGymMapMarkers(closeGyms);
+            else
+                Toast.makeText(getContext(), "No gyms near you", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public void onRefresh() {
-        getGymLocations();
+        setLocation();
+        if (utils.isInternetConnected())
+            if (zoomedToLocation)
+                if (myLocation != null)
+                    getNearGymLocations();
+                else {
+                    setDefaultMap();
+                    addGymMapMarkers(gyms);
+                    utils.toastMessage("Location has been disabled");
+                }
+            else {
+                getGymLocations();
+                setDefaultMap();
+            }
+        else {
+            utils.toastMessage("No internet Connection");
+            mySwipeRefreshLayout.setRefreshing(false);
+        }
+
     }
 
     @Override
@@ -262,40 +469,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
         if (!zoomedToLocation) {
 
             Log.e("MF", "Zooming in.");
-            zoomedToLocation = true;
-            float[] results = new float[1];
 
-            mMap.clear();
+            if (myLocation != null) {
 
-            for (Gym gym : gyms) {
+                Log.e("MF", myLocation.toString());
 
-                Log.e("MF", "Gyms " + gyms.size());
-                LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+                mMap.clear();
 
-                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Log.e("MF", "Failed to load location");
-                    Toast.makeText(getContext(), "Cannot Load gyms next to you, location disabled", Toast.LENGTH_SHORT).show();
-                } else {
-                    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), (float) 10.64));
 
-                    Log.e("MF", location.toString());
+                getNearGymLocations();
 
-                    Location.distanceBetween(location.getLatitude(), location.getLongitude(), gym.getLatitude(), gym.getLongitude(), results);
-
-                    if (results[0] < 50000) {
-                        africa = new LatLng(gym.getLatitude(), gym.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(africa).title(gym.getName()).snippet(gym.getOpening_time() + "\t- \t" + gym.getClosing_time()));
-                    }
-                }
-
+                zoomedToLocation = true;
+            } else {
+                Snackbar.make(getView().findViewById(R.id.mapsswiperrefresh), "Could not get location, please make sure location is enabled and try again...", Snackbar.LENGTH_LONG).show();
             }
-            return false;
+
+            return true;
         }
         else {
 
             Log.e("MF", "Zooming out");
             zoomedToLocation = false;
             setDefaultMap();
+            addGymMapMarkers(gyms);
             return true;
         }
 
@@ -306,16 +503,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, SwipeRe
 
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Snackbar.make(getView(), "Set this as default Gym?", Snackbar.LENGTH_SHORT)
+                .setAction("YES", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        utils.toastMessage("Set as default");
+                    }
+                }).setActionTextColor(Color.CYAN).show();
+        utils.toastMessage(marker.getTag().toString());
+
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

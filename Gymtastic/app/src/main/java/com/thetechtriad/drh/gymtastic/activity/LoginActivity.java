@@ -31,6 +31,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.thetechtriad.drh.gymtastic.R;
+import com.thetechtriad.drh.gymtastic.model.User;
 import com.thetechtriad.drh.gymtastic.model.UserResponse;
 import com.thetechtriad.drh.gymtastic.rest.ApiClient;
 import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
@@ -322,9 +323,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
 
                 if (response.body().getUser() != null) {
-                    success(true, response.body().getUser().getId());
+                    success(true, response.body().getUser());
                 } else {
-                    success(false, 0);
+                    success(false, null);
                 }
             }
 
@@ -332,14 +333,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 Log.e(MainActivity.class.getSimpleName(), t.toString());
 
-                success(false, 0);
+                success(false, null);
 
             }
         });
 
     }
 
-    private void success(boolean b, int userId) {
+    private void success(boolean b, User user) {
 //        mAuthTask = null;
         showProgress(false);
 
@@ -349,8 +350,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     getString(R.string.preference_file_key), Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("auth", true);
-            editor.putInt("userId", userId);
+            editor.putInt("userId", user.getId());
+            editor.putString("username", user.getFirstname()+ " " + user.getLastname());
+            editor.putString("email", user.getEmail());
             editor.apply();
+//            editor.apply();
 
             Log.d(TAG, sharedPref.getAll().toString());
 

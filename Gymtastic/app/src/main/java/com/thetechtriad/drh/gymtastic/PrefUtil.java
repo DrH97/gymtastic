@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -53,6 +52,9 @@ public class PrefUtil {
     }
 
     public void saveFacebookUserInfo(String first_name,String last_name, String email, String gender, String profileURL){
+
+        Log.e("PREFUTIL", first_name);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("fb_first_name", first_name);
@@ -60,13 +62,16 @@ public class PrefUtil {
         editor.putString("fb_email", email);
         editor.putString("fb_gender", gender);
         editor.putString("fb_profileURL", profileURL);
+
+        editor.putString("username", first_name + " " + last_name);
+        editor.putString("email", email);
         editor.apply(); // This line is IMPORTANT !!!
-        Log.d("MyApp", "Shared Name : "+first_name+"\nLast Name : "+last_name+"\nEmail : "+email+"\nGender : "+gender+"\nProfile Pic : "+profileURL);
+        Log.e("MyApp", "Shared Name : "+first_name+"\nLast Name : "+last_name+"\nEmail : "+email+"\nGender : "+gender+"\nProfile Pic : "+profileURL);
     }
 
     public void getFacebookUserInfo(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-        Log.d("MyApp", "Name : "+prefs.getString("fb_name",null)+"\nEmail : "+prefs.getString("fb_email",null));
+        Log.e("MyApp", "Name : "+prefs.getString("fb_name",null)+"\nEmail : "+prefs.getString("fb_email",null));
     }
 
     private void deleteAccessToken() {
@@ -90,6 +95,8 @@ public class PrefUtil {
         SharedPreferences sharedPrefs = getApplicationContext().getSharedPreferences(activity.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.remove("auth");
+        editor.remove("username");
+        editor.remove("email");
         editor.apply();
     }
 

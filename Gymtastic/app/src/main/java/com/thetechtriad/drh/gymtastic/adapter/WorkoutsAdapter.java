@@ -1,5 +1,7 @@
 package com.thetechtriad.drh.gymtastic.adapter;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -25,9 +27,12 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.MyView
 
     private List<Workout> workoutList;
 
+    private int mShortAnimTime;
+
     public WorkoutsAdapter(Context context, List<Workout> workoutList) {
         this.context = context;
         this.workoutList = workoutList;
+        mShortAnimTime = context.getResources().getInteger(android.R.integer.config_shortAnimTime);
 
         for (int i = 1; i < 5; i++) {
             workoutImages.add(context.getResources().getIdentifier("workout"+i, "drawable", context.getPackageName()));
@@ -40,6 +45,7 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.MyView
 
         public TextView workoutDate, exercise, location, reps, sets;
         public ImageView image;
+        public View overlay;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -49,6 +55,40 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.MyView
             reps = itemView.findViewById(R.id.reps);
             sets = itemView.findViewById(R.id.sets);
             image = itemView.findViewById(R.id.photo_image_view);
+            overlay = itemView.findViewById(R.id.workout_overlay);
+            overlay.setY(overlay.getHeight());
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    overlay.setAlpha(0f);
+                    overlay.setVisibility(View.VISIBLE);
+//                    overlay.setY(overlay.getHeight());
+
+                    overlay.animate()
+                            .translationY(0)
+                            .alpha(1f)
+                            .setDuration(mShortAnimTime)
+                            .setListener(null);
+                }
+            });
+
+            overlay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    overlay.animate()
+                            .translationY(v.getHeight())
+                            .alpha(0f)
+                            .setDuration(mShortAnimTime)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    overlay.setVisibility(View.GONE);
+                                }
+                            });
+                }
+            });
         }
     }
 
