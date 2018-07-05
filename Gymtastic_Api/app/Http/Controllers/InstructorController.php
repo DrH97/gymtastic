@@ -46,7 +46,7 @@ class InstructorController extends Controller
     {
         //
         $validations = $request->validate([
-            'photo' => 'sometimes|image|size:2048',
+            'photo' => 'sometimes|image|max:2048',
             'name' => 'required',
             'contact' => 'required|numeric',
             'email' => 'required|email|unique:instructors_92879',
