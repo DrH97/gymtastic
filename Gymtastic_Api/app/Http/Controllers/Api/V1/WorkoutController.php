@@ -18,6 +18,7 @@ class WorkoutController extends Controller
     public function index()
     {
         //
+        return Workout::all();
     }
 
     /**
@@ -54,7 +55,7 @@ class WorkoutController extends Controller
 
         $workout = Workout::create(compact('user_id', 'location_id', 'workout_date', 'exercise_type', 'reps', 'sets'));
 
-	if ($workout){
+	    if ($workout){
             $response = [
                 'status' => 'success',
                 'message' => 'successful addition of workout',
@@ -125,11 +126,18 @@ class WorkoutController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Workout  $workout
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Workout $workout)
+    public function destroy($workout)
     {
         //
+        Workout::destroy($workout);
+
+        $response = [
+            'status' => 'success',
+            'message' => 'Deleted Workout',
+        ];
+
+        return response()->json($response); 
     }
 }

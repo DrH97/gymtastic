@@ -90,6 +90,43 @@ class UserController extends Controller
         return response()->json($gym);
     }
 
+    public function addMemberGymLocation(Request $request, $member) {
+    
+        $validator = Validator::make($request->all(), [
+            'location_id' => 'required|exists:gym_locations_92879,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+
+        $member =  User::find($member);
+
+        if ($member != null) {
+            $member->gym_location_id = $request->location_id;
+
+            $success = $member->save();
+    
+        } else {
+            $success = false;
+    
+        }
+        
+        if ($success) {
+            $response = [
+                "status" => "success",
+                "message" => "Gym Location added successfully",
+            ];
+        } else {
+            $response = [
+                "status" => "Failed",
+                "message" => "Gym Location not added",
+            ];
+        }
+        
+        return response()->json($response);
+    }
+
     public function memberWorkouts($member) {
         $member =  User::find($member);        
         

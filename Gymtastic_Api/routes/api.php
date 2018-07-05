@@ -39,6 +39,9 @@ Route::namespace('Api\V1')->prefix('v1')->group(function() {
     });
 
     Route::apiResource('workouts', 'WorkoutController');
+    Route::prefix('workouts')->group(function() {
+        Route::post('/delete/{instructor}', 'WorkoutController@destroy');
+    });
 
     Route::apiResource('instructors', 'InstructorController')->except(['store', 'destroy']);
     Route::prefix('instructors')->group(function() {
@@ -55,6 +58,8 @@ Route::namespace('Api\V1')->prefix('v1')->group(function() {
         Route::post('/register', 'UserController@register');
 
         Route::get('/{user}/gyms', 'UserController@memberGymLocation');
+        Route::post('/{user}/gyms', 'UserController@addMemberGymLocation');
+
         Route::get('/{user}/workouts', 'UserController@memberWorkouts');
     });
     Route::resource('users', 'UserController')->except(['index', 'store', 'destroy']);

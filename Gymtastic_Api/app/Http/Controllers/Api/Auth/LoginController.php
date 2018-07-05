@@ -50,10 +50,6 @@ class LoginController extends Controller
      */
     protected function attemptLogin(Request $request)
     {
-        // return Auth::attempt($this->credentials($request));
-        // return $this->guard()->attempt(
-        //     $this->credentials($request), $request->filled('remember')
-        // );
         return Auth::guard('web')->attempt(
             $this->credentials($request), $request->filled('remember')
         );
@@ -67,14 +63,11 @@ class LoginController extends Controller
      */
     protected function sendLoginResponse(Request $request)
     {
-        // $request->session()->regenerate();
-
         $this->clearLoginAttempts($request);
 
         return $this->authenticated($request, $this->guard()->user())
                 // ?: "Yes";
                 ?: response()->json(Auth::guard('web')->user());
-                // ?: redirect()->intended($this->redirectPath());
     }
 
     /**
