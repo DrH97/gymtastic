@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements
     private ViewPager mViewPager;
     private Toolbar toolbar;
     View header;
+    private int CURRENT_TAB = 0;
 
     public int userId;
     public static int navItemIndex = 0;
@@ -111,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements
 
         mProgressView = findViewById(R.id.main_progress);
 
-        showProgress(true);
         SharedPreferences sharedPrefs = getApplication().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         userId = sharedPrefs.getInt("userId", 0);
 
@@ -179,6 +179,23 @@ public class MainActivity extends AppCompatActivity implements
 
         utils.setUpUserData(this, header);
 
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                CURRENT_TAB = position;
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
     }
 
     private void loadNavHeader() {
@@ -197,26 +214,41 @@ public class MainActivity extends AppCompatActivity implements
                 int id = item.getItemId();
 
                 switch (id) {
+                    case R.id.nav_home:
+                        break;
                     case R.id.nav_settings:
                         startActivity(new Intent(getBaseContext(), SettingsActivity.class));
-                        drawer.closeDrawers();
-                        return true;
+//                        return true;
+                        break;
                     case R.id.nav_share:
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_SEND);
                         intent.putExtra(Intent.EXTRA_TEXT, "http://gymtastic-api.herokuapp.com/");
                         intent.setType("text/plain");
                         startActivity(intent);
-                        return true;
+//                        return true;
+                        break;
                     case R.id.nav_profile:
-                        return true;
+                        startActivity(new Intent(getBaseContext(), ProfileActivity.class));
+//                        return true;
+                        break;
                     case R.id.nav_about:
-                        return true;
+                        final Dialog aboutDialog = new Dialog(MainActivity.this, R.style.Theme_AppCompat_NoActionBar);
+                        aboutDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(100,0,0,10)));
+                        aboutDialog.setContentView(R.layout.about_app);
+                        aboutDialog.setCancelable(true);
+                        aboutDialog.setCanceledOnTouchOutside(true);
+                        aboutDialog.show();
+//                        return true;
+                        break;
                     case R.id.nav_sign_out:
                         logout();
+                        break;
                     default:
                         return false;
                 }
+                drawer.closeDrawers();
+                return true;
             }
         });
 
@@ -243,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         Utils.setLanguage(this);
+        mViewPager.setCurrentItem(CURRENT_TAB);
     }
 
     @Override
@@ -280,14 +313,16 @@ public class MainActivity extends AppCompatActivity implements
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class
+            ));
             return true;
         }
 
-        if (id == R.id.action_refresh) {
+//        if (id == R.id.action_refresh) {
 //            WorkoutsFragment.newInstance().prepareWorkoutData();
 //            WorkoutsFragment workoutsFragment = (WorkoutsFragment) getSupportFragmentManager().findFragmentById(R.id.workoutsFragment);
 //            workoutsFragment.prepareWorkoutData();
-        }
+//        }
 
         if (id == R.id.action_logout) {
             logout();
@@ -477,12 +512,15 @@ public class MainActivity extends AppCompatActivity implements
             switch (position) {
                 case 0:
                     MapFragment tab1 = new MapFragment();
+                    CURRENT_TAB = 0;
                     return tab1;
                 case 1:
                     tab2 = new WorkoutsFragment();
+                    CURRENT_TAB = 1;
                     return tab2;
                 case 2:
                     InstructorsFragment tab3 = new InstructorsFragment();
+                    CURRENT_TAB = 2;
                     return tab3;
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
@@ -502,32 +540,16 @@ public class MainActivity extends AppCompatActivity implements
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-//                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//                mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-//                        show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                    @Override
-//                    public void onAnimationEnd(Animator animation) {
-//                        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//                    }
-//                });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-//                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 
     public boolean setGymLocations(List<Gym> gyms) {

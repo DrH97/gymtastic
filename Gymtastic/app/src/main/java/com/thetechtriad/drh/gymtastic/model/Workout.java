@@ -25,6 +25,8 @@ public class Workout {
     @SerializedName("sets")
     private Integer sets;
 
+    private boolean favourite = false;
+
     public Workout(Integer id, Integer userId, Integer locationId, String workoutDate, String exerciseType, Integer reps, Integer sets) {
         this.id = id;
         this.userId = userId;
@@ -89,5 +91,13 @@ public class Workout {
 
     public void setSets(Integer sets) {
         this.sets = sets;
+    }
+
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
     }
 }

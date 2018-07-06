@@ -95,4 +95,27 @@ public class Utils {
         username.setText(userData.get("username").toString());
         email.setText(userData.get("email").toString());
     }
+
+    public static String getUsermail(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        return preferences.getString("email", "gymtastic.app.com");
+    }
+
+    public static int getUserId(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        return preferences.getInt("userId", 0);
+    }
+
+    public void setUserLocation(Context context, int location) {
+        SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("user_location", location);
+        editor.apply();
+    }
+
+    public int getUserLocation(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        return preferences.getInt("user_location", 0);
+    }
 }

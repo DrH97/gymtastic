@@ -1,60 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:padding="16dp"-->
-    <!--&gt;-->
 
-    <!--<TextView-->
-        <!--android:id="@+id/exercise"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--tools:text="Exercise"-->
-        <!--/>-->
-
-    <!--<TextView-->
-        <!--android:id="@+id/workout_date"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_below="@id/exercise"-->
-        <!--tools:text="Workout Date"-->
-        <!--/>-->
-
-    <!--<TextView-->
-        <!--android:id="@+id/reps"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--tools:text="10 Reps"-->
-        <!--/>-->
-
-    <!--<TextView-->
-        <!--android:id="@+id/sets"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_below="@id/reps"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--tools:text="2 Sets"-->
-        <!--/>-->
-
-    <!--<TextView-->
-        <!--android:id="@+id/location"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_below="@id/workout_date"-->
-        <!--tools:text="Location"-->
-        <!--/>-->
-<!--</RelativeLayout>-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:padding="@dimen/appbar_padding_top">
+    android:padding="@dimen/appbar_padding_top"
+    android:id="@+id/workout_card_parent">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/workout_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         card_view:cardCornerRadius="4dp">

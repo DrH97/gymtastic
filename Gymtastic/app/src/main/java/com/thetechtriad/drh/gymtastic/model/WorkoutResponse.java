@@ -9,6 +9,9 @@ public class WorkoutResponse {
     @SerializedName("status")
     private String status;
 
+    @SerializedName("message")
+    private String message;
+
     @SerializedName("user_id")
     private String[] user_id;
 
@@ -103,5 +106,13 @@ public class WorkoutResponse {
 
     public void setWorkouts(List<Workout> workouts) {
         this.workouts = workouts;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

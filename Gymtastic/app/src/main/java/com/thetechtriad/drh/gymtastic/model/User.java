@@ -16,8 +16,8 @@ public class User {
     @SerializedName("email")
     private String email;
 
-    @SerializedName("gym_location")
-    private String gymLocation;
+    @SerializedName("gym_location_id")
+    private int gymLocation;
 
     @SerializedName("pin")
     private Integer pin;
@@ -38,7 +38,7 @@ public class User {
     @SerializedName("target_weight")
     private double targetWeight;
 
-    public User(Integer id, String firstname, String lastname, String email, String gymLocation, Integer pin, String photo, Integer age, String gender, double weight, double targetWeight) {
+    public User(Integer id, String firstname, String lastname, String email, int gymLocation, Integer pin, String photo, Integer age, String gender, double weight, double targetWeight) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -84,11 +84,11 @@ public class User {
         this.email = email;
     }
 
-    public String getGymLocation() {
+    public int getGymLocation() {
         return gymLocation;
     }
 
-    public void setGymLocation(String gymLocation) {
+    public void setGymLocation(int gymLocation) {
         this.gymLocation = gymLocation;
     }
 

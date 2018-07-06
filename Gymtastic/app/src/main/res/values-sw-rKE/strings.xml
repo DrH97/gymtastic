@@ -61,4 +61,6 @@
         <item>Swahili</item>
     </string-array>
     <string name="call">Piga Simu</string>
+    <string name="about_app">Hili programu la Gymtastic lilitengezwa na Dr H ili kusuluhisha ukosefu wa watu kutopata Mahali pa kufanya Mazoezi Afrika huu. Kwa hivyo hili programu lilitengezwa ili kuunganisha watu na mahali hizi. Pamoja na hayo, watu waweza kuhifadhi mazoezi zao za kila wakaa na kuziona baadaye, pamoja na waelezi walio kubaliwa kusaidia katika gimu hizi.</string>
+    <string name="date_picker">Tarehe</string>
 </resources>

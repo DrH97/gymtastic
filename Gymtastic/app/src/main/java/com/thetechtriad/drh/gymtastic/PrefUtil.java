@@ -97,6 +97,8 @@ public class PrefUtil {
         editor.remove("auth");
         editor.remove("username");
         editor.remove("email");
+        editor.remove("userId");
+        editor.remove("user_location");
         editor.apply();
     }
 

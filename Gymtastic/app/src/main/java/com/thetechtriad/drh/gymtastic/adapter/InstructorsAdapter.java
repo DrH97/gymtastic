@@ -1,6 +1,8 @@
 package com.thetechtriad.drh.gymtastic.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,7 +32,7 @@ public class InstructorsAdapter extends RecyclerView.Adapter<InstructorsAdapter.
         this.instructorList = instructorList;
 
         for (int i = 1; i < 5; i++) {
-            instructorImages.add(context.getResources().getIdentifier("workout"+i, "drawable", context.getPackageName()));
+            instructorImages.add(context.getResources().getIdentifier("instructor"+i, "drawable", context.getPackageName()));
         }
 
         random = new Random();
@@ -62,7 +64,7 @@ public class InstructorsAdapter extends RecyclerView.Adapter<InstructorsAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
-        Instructor instructor = instructorList.get(position);
+        final Instructor instructor = instructorList.get(position);
         holder.name.setText(instructor.getName());
         holder.details.setText(instructor.getGymLocationId());
         holder.gender.setText(instructor.getGender());
@@ -74,6 +76,29 @@ public class InstructorsAdapter extends RecyclerView.Adapter<InstructorsAdapter.
         Glide.with(context)
                 .load(instructorImages.get(rand))
                 .into(holder.image);
+
+        holder.call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + instructor.getContacts()));
+                if (intent.resolveActivity(context.getPackageManager())!= null)
+                    context.startActivity(intent);
+            }
+        });
+
+        holder.email.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:" + instructor.getEmail()));
+//                intent.putExtra(Intent.EXTRA_EMAIL, Utils.getUsermail(context));
+                intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name));
+                if (intent.resolveActivity(context.getPackageManager()) != null) {
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     @Override

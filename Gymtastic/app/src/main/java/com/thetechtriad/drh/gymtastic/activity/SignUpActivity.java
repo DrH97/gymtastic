@@ -392,7 +392,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         Log.e(TAG, "Created user task");
 //        finish();
 
-        User user = new User(0, firstname, lastname, email, null, null, null, null, null, 0, 0);
+        User user = new User(0, firstname, lastname, email, 0, null, null, null, null, 0, 0);
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
         Call<UserResponse> call = apiInterface.registerUser(user.getFirstname(), user.getLastname(), user.getEmail(), password, password);

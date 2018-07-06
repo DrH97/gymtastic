@@ -1,10 +1,12 @@
 package com.thetechtriad.drh.gymtastic.activity;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +33,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -42,6 +46,8 @@ import retrofit2.Response;
 public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = WorkoutsFragment.class.getSimpleName();
+
+    private static final int REQUEST_STORAGE = 0;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -58,7 +64,7 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
     private int id;
 
     private OnFragmentInteractionListener mListener;
-    private ProgressBar mProgressBar;
+    private static ProgressBar mProgressBar;
     private SwipeRefreshLayout mySwipeRefreshLayout;
 
     private Utils utils;
@@ -100,9 +106,12 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
         View view = inflater.inflate(R.layout.fragment_workouts, container, false);
 
         view.findViewById(R.id.tv_no_workouts).setVisibility(View.VISIBLE);
+
         mySwipeRefreshLayout = view.findViewById(R.id.workoutsswiperrefresh);
         mySwipeRefreshLayout.setOnRefreshListener(this);
-//        mListener.onFragmentInteraction(getUserId);
+
+        mySwipeRefreshLayout.setRefreshing(true);
+
         id = ((MainActivity)this.getActivity()).userId;
         recycler = view.findViewById(R.id.workoutsRecycler);
 
@@ -118,8 +127,9 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     public void prepareWorkoutData() {
-//        if (mProgressBar != null)
-//            showLoader(true);
+
+        if (!mySwipeRefreshLayout.isRefreshing())
+            mySwipeRefreshLayout.setRefreshing(true);
 
         if (utils.isInternetConnected()) {
 
@@ -130,10 +140,11 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
             call.enqueue(new Callback<WorkoutResponse>() {
                 @Override
                 public void onResponse(Call<WorkoutResponse> call, Response<WorkoutResponse> response) {
+//                    utils.toastMessage(response.body().getStatus());
                     List<Workout> workouts = response.body().getWorkouts();
 
                     setWorkoutData(workouts);
-                    //                Toast.makeText(getActivity(), "Successful Data Gotten", Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getActivity(), "Successful Data Gotten", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -165,15 +176,14 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
             Toast.makeText(getActivity(), "Couldn't get any workouts", Toast.LENGTH_SHORT).show();
         }
 
-//        showLoader(false);
         mySwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mProgressBar = view.findViewById(R.id.pbWorkoutFragment);
-        showLoader(true);
 
+        checkPermissions();
     }
 
     public void onButtonPressed(Uri uri) {
@@ -218,7 +228,7 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
         void onFragmentInteraction(Uri uri);
     }
 
-    private void showLoader(boolean b) {
+    private static void showLoader(boolean b) {
         if (b) {
             Log.e("MF", "Showing loader");
             mProgressBar.setVisibility(View.VISIBLE);
@@ -226,6 +236,33 @@ public class WorkoutsFragment extends Fragment implements SwipeRefreshLayout.OnR
 
             Log.e("MF", "Removing loader");
             mProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    protected boolean checkPermissions() {
+        if (getContext() != null)
+            if (ActivityCompat.checkSelfPermission(getContext(), WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions();
+                return false;
+            } else {
+                return true;
+            }
+        return true;
+    }
+
+    public void requestPermissions() {
+        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_STORAGE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkPermissions();
+            } else {
+                utils.toastMessage("Location permissions were denied...");
+            }
         }
     }
 }

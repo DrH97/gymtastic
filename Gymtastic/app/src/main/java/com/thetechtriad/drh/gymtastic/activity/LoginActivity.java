@@ -312,7 +312,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     public void UserLogin (String mEmail, String mPassword) {
         showProgress(true);
-        Boolean success = false;
 
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
@@ -353,10 +352,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             editor.putInt("userId", user.getId());
             editor.putString("username", user.getFirstname()+ " " + user.getLastname());
             editor.putString("email", user.getEmail());
+            editor.putInt("user_location", user.getGymLocation());
             editor.apply();
-//            editor.apply();
 
-            Log.d(TAG, sharedPref.getAll().toString());
+//            Log.d(TAG, sharedPref.getAll().toString());
 
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
@@ -366,71 +365,4 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-//    public class UserLoginTask extends AsyncTask<URL, Void, String> {
-//
-//        private final String mEmail;
-//        private final String mPassword;
-//
-//        UserLoginTask(String email, String password) {
-//            mEmail = email;
-//            mPassword = password;
-//        }
-//
-//        @Override
-//        protected String doInBackground(URL... urls) {
-//            // TODO: attempt authentication against a network service.
-//
-//            ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-//
-//            Call<UserResponse> call = apiInterface.attemptAuth(mEmail, mPassword);
-//
-//            call.enqueue(new Callback<UserResponse>() {
-//                @Override
-//                public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-//                    String message = response.body().getMessage();
-//                    String password = response.body().getPassword();
-//
-//                    Toast.makeText(getApplicationContext(), message + ' ' + password, Toast.LENGTH_LONG).show();
-//
-//                    onPostExecute("true");
-//                    return;
-//                }
-//
-//                @Override
-//                public void onFailure(Call<UserResponse> call, Throwable t) {
-//                    Log.e(MainActivity.class.getSimpleName(), t.toString());
-//
-//                    return;
-//                }
-//            });
-//
-//            // TODO: register the new account here.
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(final String success) {
-//            mAuthTask = null;
-//            showProgress(false);
-//
-//            if (success != null) {
-//                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-//                finish();
-//            } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
-//            }
-//        }
-//
-//        @Override
-//        protected void onCancelled() {
-//            mAuthTask = null;
-//            showProgress(false);
-//        }
-//    }
 }
-

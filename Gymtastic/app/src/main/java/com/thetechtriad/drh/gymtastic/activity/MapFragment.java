@@ -31,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -39,6 +40,7 @@ import com.thetechtriad.drh.gymtastic.R;
 import com.thetechtriad.drh.gymtastic.Utils;
 import com.thetechtriad.drh.gymtastic.model.Gym;
 import com.thetechtriad.drh.gymtastic.model.GymResponse;
+import com.thetechtriad.drh.gymtastic.model.UserResponse;
 import com.thetechtriad.drh.gymtastic.rest.ApiClient;
 import com.thetechtriad.drh.gymtastic.rest.ApiInterface;
 
@@ -124,6 +126,8 @@ public class MapFragment extends Fragment implements
 
     private Utils utils;
 
+    private int userGymLocation;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -163,6 +167,8 @@ public class MapFragment extends Fragment implements
 
         utils = new Utils(getActivity());
 
+        userGymLocation = utils.getUserLocation(getContext());
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -200,7 +206,7 @@ public class MapFragment extends Fragment implements
             @Override
             public void onLocationChanged(Location location) {
                 if (isBetterLocation(location, myLocation)) {
-                    utils.toastMessage("OnLocationChanged");
+//                    utils.toastMessage("OnLocationChanged");
                     myLocation = location;
                     setLocation();
                 }
@@ -208,7 +214,7 @@ public class MapFragment extends Fragment implements
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-                utils.toastMessage("OnStatusChanged");
+//                utils.toastMessage("OnStatusChanged");
                 mProvider = provider;
                 setLocation();
             }
@@ -406,13 +412,20 @@ public class MapFragment extends Fragment implements
         if (gyms != null)
             for (Gym gym : gyms) {
                 MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(new LatLng(gym.getLatitude(), gym.getLongitude()))
-                        .title(gym.getName())
-                        .snippet(gym.getOpening_time() + "\t- \t" + gym.getClosing_time());
+                if (userGymLocation != 0 && gym.getId() == userGymLocation) {
+                    markerOptions.position(new LatLng(gym.getLatitude(), gym.getLongitude()))
+                            .title(gym.getName())
+                            .snippet(gym.getOpening_time() + "\t- \t" + gym.getClosing_time())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                } else {
+                    markerOptions.position(new LatLng(gym.getLatitude(), gym.getLongitude()))
+                            .title(gym.getName())
+                            .snippet(gym.getOpening_time() + "\t- \t" + gym.getClosing_time());
+                }
 
                 Marker m = mMap.addMarker(markerOptions);
                 m.setTag(gym.getId());
-                m.showInfoWindow();
+//                m.showInfoWindow();
             }
         else
             Toast.makeText(getContext(), "No gyms gotten yet...", Toast.LENGTH_SHORT).show();
@@ -455,6 +468,7 @@ public class MapFragment extends Fragment implements
                 }
             else {
                 getGymLocations();
+                addGymMapMarkers(gyms);
                 setDefaultMap();
             }
         else {
@@ -504,15 +518,53 @@ public class MapFragment extends Fragment implements
     }
 
     @Override
-    public void onInfoWindowClick(Marker marker) {
-        Snackbar.make(getView(), "Set this as default Gym?", Snackbar.LENGTH_SHORT)
-                .setAction("YES", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        utils.toastMessage("Set as default");
-                    }
-                }).setActionTextColor(Color.CYAN).show();
-        utils.toastMessage(marker.getTag().toString());
+    public void onInfoWindowClick(final Marker marker) {
+        if (Integer.parseInt(marker.getTag().toString()) != userGymLocation)
+            Snackbar.make(getView(), "Set this as default Gym?", Snackbar.LENGTH_SHORT)
+                    .setAction("YES", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mySwipeRefreshLayout.setRefreshing(true);
+                            setDefaultLoc(marker.getTag().toString(), marker);
+                        }
+                    }).setActionTextColor(Color.CYAN).show();
+//        utils.toastMessage(marker.getTag().toString());
+
+    }
+
+    private void setDefaultLoc(String s, Marker marker) {
+        int userId = Utils.getUserId(getContext());
+        final int locationId = Integer.parseInt(s);
+
+        marker.hideInfoWindow();
+
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
+        Call<UserResponse> call = apiInterface.addUserLocation(userId, locationId);
+
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.body().getStatus().equals("success")) {
+                    utils.setUserLocation(getContext(), locationId);
+                    utils.toastMessage(response.body().getMessage());
+//                    utils.toastMessage("Location set successfully");
+                    userGymLocation = utils.getUserLocation(getContext());
+                    onRefresh();
+                } else {
+                    utils.toastMessage(response.body().getStatus());
+
+                    mySwipeRefreshLayout.setRefreshing(false);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                utils.toastMessage(t.toString());
+
+                mySwipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
     }
 

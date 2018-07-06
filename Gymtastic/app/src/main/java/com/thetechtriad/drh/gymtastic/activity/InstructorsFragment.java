@@ -104,6 +104,7 @@ public class InstructorsFragment extends Fragment implements
         mySwipeRefreshLayout = view.findViewById(R.id.instructorsswiperrefresh);
         mySwipeRefreshLayout.setOnRefreshListener(this);
 
+        mySwipeRefreshLayout.setRefreshing(true);
         recycler = view.findViewById(R.id.instructorsRecycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getActivity());
         recycler.setLayoutManager(layoutManager);
@@ -113,7 +114,6 @@ public class InstructorsFragment extends Fragment implements
         recycler.setAdapter(iAdapter);
 
         Log.e(TAG, "Created view: Getting data");
-//        mySwipeRefreshLayout.setRefreshing(true);
         prepareInstructorData();
 
         return view;
@@ -121,6 +121,9 @@ public class InstructorsFragment extends Fragment implements
 
     private void prepareInstructorData() {
         Log.e(TAG, "Preparing instructor data");
+
+        if (!mySwipeRefreshLayout.isRefreshing())
+            mySwipeRefreshLayout.setRefreshing(true);
 
         if (utils.isInternetConnected()) {
 
