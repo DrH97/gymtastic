@@ -131,7 +131,7 @@ class WorkoutController extends Controller
     public function destroy($workout)
     {
         //
-        Workout::destroy($workout);
+        return Workout::destroy($workout);
 
         $response = [
             'status' => 'success',
