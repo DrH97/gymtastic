@@ -131,12 +131,19 @@ class WorkoutController extends Controller
     public function destroy($workout)
     {
         //
-        return Workout::destroy($workout);
+	$deleted = Workout::destroy($workout);
 
-        $response = [
-            'status' => 'success',
-            'message' => 'Deleted Workout',
-        ];
+        if($deleted == 1) {
+	 	$response = [
+		    'status' => 'success',
+		    'message' => 'Deleted Workout',
+		];
+	} else {
+		 $response = [
+		    'status' => 'failed',
+		    'message' => 'Failed to delete Workout',
+		];
+	}       
 
         return response()->json($response); 
     }
